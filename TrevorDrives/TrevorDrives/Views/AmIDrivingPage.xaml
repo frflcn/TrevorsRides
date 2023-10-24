@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TrevorDrives.Views.AmIDrivingPage"
+             xmlns:maps="clr-namespace:Xamarin.Forms.GoogleMaps;assembly=Xamarin.Forms.GoogleMaps">
+    
+        
+    
+    <ContentPage.Content>
+        
+
+            <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30" />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Label 
+                Text="Welcome to Trevor Drives!"
+                
+                HorizontalOptions="CenterAndExpand"
+                Grid.ColumnSpan="2"/>
+
+            <Label Text="Am I Driving?" 
+                   
+                   HorizontalOptions="EndAndExpand"
+                   Grid.Row="1"/>
+
+            <Switch x:Name="AmIDrivingSwitch"
+                    
+                    Toggled="AmIDrivingToggled"
+                    IsToggled="False" 
+                    
+                    HorizontalOptions="StartAndExpand"
+                    Grid.Row="1"
+                    Grid.Column="1"/>
+
+            <Label Text="Am I Driving For Uber?" 
+                   
+                   HorizontalOptions="EndAndExpand"
+                   Grid.Row="2"/>
+
+            <Switch x:Name="AmIDrivingForUberSwitch"
+                    
+                    Toggled="AmIDrivingForUberToggled"
+                    IsToggled="False" 
+                    
+                    HorizontalOptions="StartAndExpand"
+                    Grid.Row="2"
+                    Grid.Column="1"/>
+            <maps:Map x:Name="Map" 
+                      Grid.Row="3"
+                      Grid.ColumnSpan="2"
+                      HorizontalOptions="Fill"
+                      VerticalOptions="FillAndExpand"
+                      
+                      MyLocationEnabled="True"
+                      InitialCameraUpdate="40.7966918008437, -77.87240124095848, 7">
+                
+
+            </maps:Map>
+
+        </Grid>
+        
+    </ContentPage.Content>
+</ContentPage>
