@@ -1,0 +1,229 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TrevorsRidesMaui.Controls"
+             x:Class="TrevorsRidesMaui.MainPage"
+             xmlns:maps2="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
+             xmlns:maps="clr-namespace:Maui.GoogleMaps;assembly=Maui.GoogleMaps"
+             xmlns:sensors="clr-namespace:Microsoft.Maui.Devices.Sensors;assembly=Microsoft.Maui.Essentials"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ignore="http://www.galasoft.ch/ignore"
+             mc:Ignorable="ignore">
+
+    
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30" />
+                <RowDefinition Height="30" />
+
+                <RowDefinition Height="*" />
+                <RowDefinition Height="100"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Rectangle
+                Grid.ColumnSpan="2"
+                Grid.RowSpan="4"
+                ZIndex="-1"
+                BackgroundColor="Transparent">
+                <Rectangle.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnControlTapped"/>
+                </Rectangle.GestureRecognizers>
+            </Rectangle>
+            <Label 
+                x:Name="WelcomeLabel"
+                Text="Welcome to Trevor's Rides!"
+                
+                HorizontalOptions="CenterAndExpand"
+                Grid.ColumnSpan="2">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer 
+                        Tapped="OnControlTapped"/>
+                </Label.GestureRecognizers>
+            </Label>
+
+            <Label
+        
+                x:Name="trevorsStatus"
+                x:FieldModifier="public"
+                Text="Getting Trevor's Status..."
+                HorizontalOptions="CenterAndExpand"
+                Grid.Row="1"
+                Grid.ColumnSpan="2">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer 
+                        Tapped="OnControlTapped"/>
+                </Label.GestureRecognizers>
+            </Label>
+            <controls:ComboBox
+                ignore:ItemsSource="FromAddressSuggestions"
+                Placeholder="Where are you coming from?"
+                ZIndex="2"
+                x:Name="FromAddress"
+                x:FieldModifier="public"
+                Grid.Row="2"
+                Grid.ColumnSpan="2" 
+                OnTextChanged="AddressTextChanged"
+                OnItemTapped="FromAddress_OnSuggestionsTapped"/>
+            <controls:ComboBox
+                Margin="0,50,0,0"
+                ignore:ItemsSource="{Binding ListOfEntries}"
+                Placeholder="Where are you headed to?"
+                ZIndex="1"
+                x:Name="ToAddress"
+                x:FieldModifier="public"
+                Grid.Row="2"
+                Grid.ColumnSpan="2" 
+                OnTextChanged="AddressTextChanged"
+                OnItemTapped="ToAddress_OnSuggestionsTapped">
+                
+                
+            </controls:ComboBox>
+
+
+
+
+
+            <!--<maps:Map x:Name="Map" 
+                      x:FieldModifier="public"
+                      Grid.Row="2"
+                      Grid.ColumnSpan="2"
+                      HorizontalOptions="Fill"
+                      VerticalOptions="FillAndExpand"
+                      Margin="0,100,0,0"
+                      
+                      
+                      MyLocationEnabled="True"
+                      InitialCameraUpdate="40.7966918008437, -77.87240124095848, 13"
+                      
+                      MapClicked="Map_MapClicked">
+                <maps:Map.Pins>
+                    <maps:Pin
+                        x:Name="trevorsLocation"
+                        x:FieldModifier="public"
+                        Label="Trevor"
+                        IsVisible="False"/>
+                    <maps:Pin
+                        x:Name="PickupLocation"
+                        x:FieldModifier="public"
+                        Label="Pickup"
+                        IsVisible="False"/>
+                    <maps:Pin
+                        x:Name="DropoffLocation"
+                        x:FieldModifier="public"
+                        Label="Dropoff"
+                        IsVisible="False"/>
+                </maps:Map.Pins>
+                <maps:Map.Polylines>
+                    <maps:Polyline
+                        x:Name="RoutePolyline"
+                        x:FieldModifier="public"
+                        StrokeWidth="5"/>
+                </maps:Map.Polylines>
+                <maps:Map.GestureRecognizers>
+                    <TapGestureRecognizer 
+                        Tapped="OnControlTapped"/>
+                </maps:Map.GestureRecognizers>
+
+
+            </maps:Map>-->
+            <maps2:Map 
+                x:Name="Map" 
+                x:FieldModifier="public"
+                Grid.Row="2"
+                Grid.ColumnSpan="2"
+                HorizontalOptions="Fill"
+                VerticalOptions="FillAndExpand"
+                Margin="0,100,0,0"
+                      
+                      
+                IsShowingUser="True"
+                
+                      
+                MapClicked="Map_MapClicked">
+                <x:Arguments>
+                    <MapSpan>
+                        <x:Arguments>
+                            <sensors:Location>
+                                <x:Arguments>
+                                    <x:Double>40.796691</x:Double>
+                                    <x:Double>-77.87240</x:Double>
+                                </x:Arguments>
+                            </sensors:Location>
+                            <x:Double>0.01</x:Double>
+                            <x:Double>0.01</x:Double>
+                        </x:Arguments>
+                    </MapSpan>
+                </x:Arguments>
+                <maps2:Map.Pins>
+                    <!--<maps2:Pin
+                        x:Name="trevorsLocation"
+                        x:FieldModifier="public"
+                        Label="Trevor"
+                        Type="Place"
+                        Address="HI">
+                        <maps2:Pin.Location>
+                            <sensors:Location>
+                                <x:Arguments>
+                                    <x:Double>40.796691</x:Double>
+                                    <x:Double>-77.87240</x:Double>
+                                </x:Arguments>
+                            </sensors:Location>  
+                        </maps2:Pin.Location>
+                    </maps2:Pin>
+                    <maps2:Pin
+                        x:Name="PickupLocation"
+                        x:FieldModifier="public"
+                        Label="Pickup"
+                        Type="Place"
+                        Address="Hi">
+                        <maps2:Pin.Location>
+                            <sensors:Location>
+                                <x:Arguments>
+                                    <x:Double>40.796691</x:Double>
+                                    <x:Double>-77.87240</x:Double>
+                                </x:Arguments>
+                            </sensors:Location>
+                        </maps2:Pin.Location>
+                    </maps2:Pin>
+                    <maps2:Pin
+                        x:Name="DropoffLocation"
+                        x:FieldModifier="public"
+                        Label="Dropoff"
+                        Type="Place"
+                        Address="Hi">
+                        <maps2:Pin.Location>
+                            <sensors:Location>
+                                <x:Arguments>
+                                    <x:Double>40.796691</x:Double>
+                                    <x:Double>-77.87240</x:Double>
+                                </x:Arguments>
+                            </sensors:Location>
+                        </maps2:Pin.Location>
+                    </maps2:Pin>-->
+                </maps2:Map.Pins>
+                <maps2:Map.MapElements>
+                    
+                        <maps2:Polyline
+                        x:Name="RoutePolyline"
+                        x:FieldModifier="public"
+                        StrokeWidth="5"/>
+                    
+                </maps2:Map.MapElements>
+                
+                
+
+
+            </maps2:Map>
+        <controls:RideDetails
+                x:Name="RideDetailsControl"
+                Grid.Row="3"
+                Grid.ColumnSpan="2"/>
+
+
+    </Grid>
+    
+
+</ContentPage>

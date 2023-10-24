@@ -1,0 +1,120 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1>Trevor M. Stauffer</h1>
+    <img src="me.jpg" width="300" height="400">
+    <p><a href="~/Trevor Stauffer-Resume.pdf" download="Trevor Stauffer-Resume.pdf">Download My Resume</a></p>
+</div>
+    <p>
+    To Sir or Madam Reading My Webpage:<br /><br />
+
+    I am looking for a career in Data Science or Software Engineering and have the qualifications to do so, as I will show in this letter.<br /><br />
+
+    I am currently working as an Uber Driver and am available for immediate hire. I have recently graduated from The Pennsylvania State University with a Bachelors of Science in Physics. During my time in University, I took courses such as Calculus and Introduction to C++, where I scored very highly.<br /><br />
+
+    I have been recently developing an app in the .Net framework to track personal finances. It currently lets the user enter in their balances for their accounts and saves it in a local SQLite database for later viewing in graphs within the app to track their progress. The app also can parse transactions copied from the user’s bank account’s website. The user can then implement rules to automatically tag these transactions as “Dining”, “Gas”, “Rent”, etc. The database is then be synced in the cloud via Google Cloud Storage and accessed from a separate Mobile application for the user to view their financial progress.<br /><br />
+
+    I have also taken many courses on Codecademy and understand the fundamentals of many languages. Courses I have taken on Codecademy include Python 3, SQLite, HTML, CSS, JavaScript, and C#. I have also completed a Data Analysis and Machine Learning career path on Codecademy.<br /><br />
+
+    In addition to the courses I have taken and the project I am working on, I have also designed an Android app in Java that calculates the position of the sun relative to the user’s location and sets alarms for the user. It can also update these alarms if the user moves about and does this all in the background without using a lot of battery.<br /><br />
+
+    I have couple of examples of the projects I have either completed or am working on down below. You should also know that this webpage was written with Razor pages and is running in a Docker container which is running on Google Cloud Run. As you can see, I am very qualified to work as either a Data Scientist or Software Engineer at your company, and I am happy to discuss how I can be of benefit to you and your company.<br /><br />
+
+    I’m looking forward to hearing from you.
+
+    </p>
+<div class="table">
+
+    <table style="width: 100%">
+        <colgroup>
+            <col span="1" style="width: 15%;">
+            <col span="1" style="width: 55%;">
+            <col span="1" style="width: 15%; text-align: right;">
+            <col span="1" style="width: 15%; text-align: right;">
+        </colgroup>
+        <thead>
+            <tr>
+                <td>Name</td>
+                <td>Description</td>
+                <td>Code</td>
+                <td>Release</td>
+                <td>Readme</td>
+            </tr>
+        </thead>
+        <tr>
+            <td>Finance Tracker Application</td>
+            <td>This is the app that tracks finances. It might be a little confusing to the average user, that's because I designed it for personal use and didn't think about someone else using it however I did add a readme that explains it all. For the record the SQLite table will be stored under C://Users/your_user_account/AppData/Local/FinanceTracker/FinanceTracker.db. Uploading of the SQLite file to Google Cloud won't work because I removed the Application Default Credentials from the project because I don't want you to have access to my entire Google Cloud Platform. I'm working on a fix for this so you can see the demonstration. For the same reason the Android App has no use for you, until I patch this.</td>
+            <td><a href="~/FinanceTrackerApplication.zip" download="FinanceTrackerApplicationCode.zip">Code</a></td>
+            <td><a href="~/Finance Tracker Application.zip" download="FinanceTrackerApplication.zip">Release</a></td>
+            <td><a href="~/ReadMe.txt" download="ReadMe.txt">ReadMe</a></td>
+        </tr>
+        <tr>
+            <td>Akashic</td>
+            <td>I made this app a while ago and no longer really use it there is a known bug(it sets off too many alarms), I do know how to fix it but to fix it I have to get the source code off of my harddrive with a virus on it. It's on my todo list.</td>
+            <td>N/A</td>
+            <td><a href="~/akashic.apk" download="akashic.apk" type="application/vnd.android.package-archive">Release</a></td>
+            <td>N/A</td>
+        </tr>
+    </table>
+
+
+
+
+        <h2 style="margin-top: 60px"><a href="https://projecteuler.net">Project Euler</a></h2>
+
+    <p>
+        I would also like to share with you a coding project that I thoroughly enjoyed. It's a coding project that solves a problem from the website prjecteuler.net. ProjectEuler.net is a website that hosts a number of interesting math problems that you probably wouldn't be able to solve without a 
+        computer and also probably wouldn't be able to solve without some serious exploration into the mathematical side of the problem. Some of these problems can be extremely difficult. The problem I'm about to share with you took me about 
+        a half hour to write up my first attempt at it, a brute force attempt that will solve it in about oh... a thousand millenia. My second attempt took me about a day of deliberation just determining a proper algorithm for the problem. 
+        My second attempt solves it in about 17 hours. Not bad. My third attempt I figured out while my second attempt was running (lol), and will solve in under a minute if written in C++. ProjectEuler states that every problem on their website can be solve in under
+        a minute with  a proper algorithm.
+    </p>
+    <p>
+        The problem statement is as follows:
+    </p>
+    <p>
+
+        Euler's Totient function, φ(n) [sometimes called the phi function], is used to determine the number of positive numbers less than or equal to n which are relatively prime to n. For example, as 1, 2, 4, 5, 7, and 8, are all less than nine and relatively prime to nine, φ(9)=6.
+The number 1 is considered to be relatively prime to every positive number, so φ(1)=1.
+
+Interestingly, φ(87109)=79180, and it can be seen that 87109 is a permutation of 79180.
+
+        Find the value of n, 1 &lt n &lt 10<sup>7</sup>, for which φ(n) is a permutation of n and the ratio n/φ(n) produces a minimum.
+    </p>
+    
+    <p>For my first attempt, straight brute force. To calculate φ(n) went through number m up to n and checked if any of m's divisor divided n evenly.</p>
+    <p>For my second attempt I realized instead of counting the number of numbers relatively prime to n, if I had the list of prime factors of n I can calculate it directly.</p>
+    <p>For my third attempt I found a really fast way to find the list of prime factors of n. Essentially it used the same process that you would find the primes using eratosthenes sieve but modified slightly so it adds each prime to the list of prime factors for each number n.</p>
+    <div class="table">
+
+        <table>
+            <thead>
+                <tr>
+                    <td>Python Code</td>
+                    <td>Description</td>
+                </tr>
+            </thead>
+            <tr>
+                <td><a href="~/Euler70.py" download="Euler70.py">Euler70.py</a></td>
+                <td>This was my brute force attempt, this will take more than a millenia to solve!</td>
+            </tr>
+            <tr>
+                <td><a href="~/Euler70SecondAttempt.py" download="Euler70SecondAttempt.py">Euler70SecondAttempt.py</a></td>
+                <td>My second attempt. This will take approximately 17 hours, atleast it's in my lifetime!</td>
+            </tr>
+            <tr>
+                <td><a href="~/Euler70ThirdAttempt.py" download type="text/plain">Euler70ThirdAttempt.py</a></td>
+                <td>My third attempt. This solves in about 2 minutes, phew!.</td>
+            </tr>
+        </table>
+
+
+
+    </div>
+    <p>I'll upload my C++ versions sooner or later. For now enjoy these. I'll also upload other Euler problems later, but they aren't as interesting as this one anyways.</p>
+
+</div>
