@@ -43,6 +43,8 @@ public partial class RideDetails : ContentView
             this.CostLabel.Text = $"Approx Ride Cost: ${Math.Round(_cost.Value)}";
         }
     }
+
+    public event EventHandler<EventArgs> BookRidePressed;
     public RideDetails()
 	{
 		InitializeComponent();
@@ -51,5 +53,10 @@ public partial class RideDetails : ContentView
     {
         duration = duration.Substring(0, duration.Length - 1);
         return new TimeSpan(0, 0, int.Parse(duration));
+    }
+
+    private void Button_Pressed(object sender, EventArgs e)
+    {
+        BookRidePressed?.Invoke(this, e);
     }
 }

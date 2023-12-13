@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TrevorsRidesMaui.Account_Setup.EmailPage"
+             Title="CreateAccountEmailPage">
+    <VerticalStackLayout
+        Padding="30,30,30,30">
+        <Label
+            Text="Create Account"
+            VerticalOptions="Center"
+            HorizontalOptions="Center" />
+        <Label 
+            Text="Email"
+            VerticalOptions="Center" 
+            HorizontalOptions="Start"
+            Margin="0,30,0,0"/>
+        <Entry
+            x:Name="EmailEntry"
+            x:FieldModifier="public"
+            VerticalOptions="Center" 
+            HorizontalOptions="Fill"
+            Keyboard="Email"/>
+        <Button
+            Text="Next"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Pressed="NextButton_Pressed" />
+
+
+    </VerticalStackLayout>
+</ContentPage>

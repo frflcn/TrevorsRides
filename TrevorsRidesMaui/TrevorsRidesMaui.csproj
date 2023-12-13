@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net7.0-android;net7.0-ios;net7.0-maccatalyst</TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net7.0-windows10.0.19041.0</TargetFrameworks>
+    <TargetFrameworks>net7.0-android;net7.0-ios</TargetFrameworks>
+		<!--<TargetFrameworks>net7.0-android;net7.0-ios;net7.0-maccatalyst</TargetFrameworks>-->
+		<!--<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net7.0-windows10.0.19041.0</TargetFrameworks>-->
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
 		<!-- <TargetFrameworks>$(TargetFrameworks);net7.0-tizen</TargetFrameworks> -->
 		<OutputType>Exe</OutputType>
@@ -15,14 +16,14 @@
     <Nullable>enable</Nullable>
 
 		<!-- Display name -->
-		<ApplicationTitle>TrevorsRidesMaui</ApplicationTitle>
+		<ApplicationTitle>Trevor's Rides</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.trevorsridesmaui</ApplicationId>
+		<ApplicationId>com.trevorsapps.trevorsrides</ApplicationId>
 		<ApplicationIdGuid>3740cc28-8d8f-4605-bf40-bec7e2997520</ApplicationIdGuid>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+		<ApplicationDisplayVersion>0.0.1</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">11.0</SupportedOSPlatformVersion>
@@ -35,6 +36,8 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7.0-android|AnyCPU'">
 	  <AndroidPackageFormat>apk</AndroidPackageFormat>
+	  <PublishTrimmed>True</PublishTrimmed>
+	  <RunAOTCompilation>True</RunAOTCompilation>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -65,14 +68,21 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
-		<PackageReference Include="Microsoft.Maui.Controls.Maps" Version="7.0.86" />
+	  <MauiCss Remove="Resources\Raw\checkout.css" />
 	</ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0-android'">
-	  <PackageReference Include="Onion.Maui.GoogleMaps">
-	    <Version>5.0.1</Version>
-	  </PackageReference>
+	<ItemGroup>
+	  <None Remove="Resources\Raw\checkout.js" />
+	  <None Remove="Resources\Raw\Stripe.html" />
+	  <None Remove="Resources\Raw\StripeLarge.js" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+		<PackageReference Include="libphonenumber-csharp" Version="8.13.24" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Maui.Controls.Maps" Version="7.0.101" />
+		<PackageReference Include="Stripe.net" Version="43.0.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0-ios'">
@@ -82,28 +92,49 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Account Setup\EmailPage.xaml.cs">
+	    <DependentUpon>EmailPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Account Setup\PasswordPage.xaml.cs">
+	    <DependentUpon>PasswordPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Account Setup\PrivacyPolicy.xaml.cs">
+	    <DependentUpon>PrivacyPolicy.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Controls\ComboBox.xaml.cs">
 	    <DependentUpon>%(Filename)</DependentUpon>
 	  </Compile>
-	  <Compile Update="CreateAccountNamePage.xaml.cs">
-	    <DependentUpon>CreateAccountNamePage.xaml</DependentUpon>
+	  <Compile Update="Account Setup\NamePage.xaml.cs">
+	    <DependentUpon>NamePage.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="Account Setup\EmailVerificationPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Account Setup\PhonePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Account Setup\PrivacyPolicy.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="BookRidePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Controls\ComboBox.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Controls\RideDetails.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="CreateAccountEmailPage.xaml">
+	  <MauiXaml Update="Account Setup\EmailPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="CreateAccountNamePage.xaml">
+	  <MauiXaml Update="Account Setup\NamePage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="CreateAccountPasswordPage.xaml">
+	  <MauiXaml Update="Account Setup\PasswordPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="LoginPage.xaml">

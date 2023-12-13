@@ -1,23 +1,20 @@
-﻿#if (ANDROID || IOS)
-using System.Collections.ObjectModel;
-using System.Timers;
+﻿using System.Collections.ObjectModel;
 using TrevorsRidesMaui.Controls;
 
 using TrevorsRidesHelpers.GoogleApiClasses;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Net.Http.Headers;
 using System.Collections;
 using MauiLocation = Microsoft.Maui.Devices.Sensors;
-using Maui.GoogleMaps;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Maps;
+//using Maui.GoogleMaps;
 using Microsoft.Maui.Controls.Maps;
 using System.Diagnostics;
 using TrevorsRidesHelpers;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TrevorsRidesMaui
 {
+    
     public partial class MainPage : ContentPage
     {
         Place? ToPlace;
@@ -38,18 +35,18 @@ namespace TrevorsRidesMaui
         ObservableCollection<ListViewEntry> ToAddressSuggestions;
         ObservableCollection<ListViewEntry> FromAddressSuggestions;
        
-        string GOOGLE_PLACES_API_KEY = "AIzaSyAN0Fm1bQxU21UmTGrCr_OKOgRLJKbn7cs";
+        string GOOGLE_PLACES_API_KEY = APIKeys.GoogleEverythingKey;
                                        
         HttpClient client;
         Microsoft.Maui.Devices.Sensors.Location? location = new Microsoft.Maui.Devices.Sensors.Location(40.79442954080881, -77.86165896747);
         PlacesSessionToken pst;
 
 
-
+        [DynamicDependency("OnControlTapped")]
         public MainPage()
         {
             InitializeComponent();
-           
+            client = App.HttpClient;
             ToAddressSuggestions = new ObservableCollection<ListViewEntry>(){
                 new ListViewEntry(){
                     MainText="Your location" },
@@ -65,12 +62,12 @@ namespace TrevorsRidesMaui
 
 
         }
-
-        public void OnControlTapped(object sender, TappedEventArgs e)
+        
+        public async void OnControlTapped(object sender, EventArgs e)
         {
-            this.FromAddress.TextEditor.Unfocus();
-            this.ToAddress.TextEditor.Unfocus();
-            Log.Debug("CONTROL: ", "TAPPED");
+            //this.FromAddress.TextEditor.Unfocus();
+            //this.ToAddress.TextEditor.Unfocus();
+            //Log.Debug("CONTROL: ", "TAPPED");
             
         }
 
@@ -104,7 +101,6 @@ namespace TrevorsRidesMaui
                 {
                     pst = new PlacesSessionToken();
                 }
-                client = new HttpClient();
                 Uri uri = new Uri($"https://maps.googleapis.com/maps/api/place/autocomplete/json?" +
                     $"input={comboBox.TextEditor.Text}&" +
                     $"location={location.Latitude}%2C{location.Longitude}&" +
@@ -269,7 +265,6 @@ namespace TrevorsRidesMaui
                 {
                     pst = new PlacesSessionToken();
                 }
-                client = new HttpClient();
                 Uri uri = new Uri($"https://maps.googleapis.com/maps/api/place/details/json?" +
                     $"fields=address_components%2Cadr_address%2Cformatted_address%2Cgeometry%2Cname%2Cplus_code&" +
                     $"place_id={listViewEntry.Prediction.place_id}&" +
@@ -328,7 +323,6 @@ namespace TrevorsRidesMaui
             {
                 throw new NullReferenceException("ToPlace or FromPlace null");
             }
-            HttpClient client = new HttpClient();
             Uri uri = new Uri("https://routes.googleapis.com/directions/v2:computeRoutes");
             RoutesRequest request;
             if ((Application.Current as App) == null)
@@ -611,6 +605,13 @@ namespace TrevorsRidesMaui
             }
             return viewport;
         }
+
+        private void RideDetailsControl_BookRidePressed(object sender, EventArgs e)
+        {
+            Navigation.PushAsync(new BookRidePage());
+                
+        }
     }
 }
-#endif
+
+

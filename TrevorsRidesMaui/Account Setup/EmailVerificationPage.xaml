@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TrevorsRidesMaui.Account_Setup.EmailVerificationPage"
+             Title="EmailVerificationPage">
+    <VerticalStackLayout>
+        <Label 
+            x:Name="CodeLabel"
+            Text="Please enter the verification code"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center" />
+        <Entry
+            x:Name="CodeEntry"
+            Keyboard="Numeric"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            MinimumWidthRequest="200"
+            TextChanged="CodeEntry_TextChanged"
+            
+            />
+    </VerticalStackLayout>
+</ContentPage>

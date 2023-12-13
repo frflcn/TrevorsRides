@@ -30,4 +30,9 @@
 	  </PackageReference>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+	  <PackageReference Include="libphonenumber-csharp" Version="8.13.24" />
+	</ItemGroup>
+
 </Project>

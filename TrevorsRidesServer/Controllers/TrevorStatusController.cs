@@ -16,8 +16,8 @@ namespace TrevorsRidesServer.Controllers
     public class TrevorStatusController : ControllerBase
     {
         static string testPath = "C://Users/tmsta/AppData/TrevorsRides/trevors_status.json";
-        static string statusFilePath = "/var/www/trevorsrides/trevors_status.json";
-        static string statusFileDirectory = "/var/www/trevorsrides/";
+        static string statusFilePath = "/var/data/trevorsrides/trevors_status.json";
+        static string statusFileDirectory = "/var/data/trevorsrides/";
 
         System.Timers.Timer timer = new ();
         [HttpPut(Name = "PutTrevorsStatus")]

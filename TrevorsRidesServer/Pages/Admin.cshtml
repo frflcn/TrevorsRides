@@ -1,0 +1,14 @@
+﻿@page
+@model AdminModel
+@{
+}
+
+<button id="Authorize" onclick="Authorize()" type="button">Authorize</button>
+
+@section scripts{
+    <script>
+        function Authorize() {
+            location.href = "https://accounts.google.com/o/oauth2/v2/auth?scope=https://www.googleapis.com/auth/gmail.send%20https://www.googleapis.com/auth/userinfo.email&access_type=offline&include_granted_scopes=true&response_type=code&state=state_parameter_passthrough_value&redirect_uri=https://www.trevorsrides.com/Admin&client_id=1037782219992-3jlhmagpfalp84u57cf0cr0je6ef3i5u.apps.googleusercontent.com&prompt=consent"
+        }
+    </script>
+}
