@@ -7,31 +7,59 @@ using System.Timers;
 using MauiLocation = Microsoft.Maui.Devices.Sensors;
 using Microsoft.Maui.Controls.Maps;
 using TrevorsRidesHelpers;
+using System.Windows.Input;
+using Microsoft.Maui.Storage;
 
 
 namespace TrevorsRidesMaui
 {
     public partial class App : Application
     {
+        public static HttpClient HttpClient { get; set; }
         public ClientWebSocket client;
+        public static AccountSession? AccountSession { get; set; }
+        public static JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+        {
+            Converters =
+                {
+                    new Json.PhoneNumberJsonConverter()
+                }
+        };
+
         public TrevorStatus? trevor;
         public Pin trevorsLocation = new Pin()
         {
             Label = "Trevor is here",
             Type = PinType.Place
         };
+
         public string Username { get; set; }
         public string Password { get; set; }
+
+        static App()
+        {
+            HttpClient = new HttpClient();
+        }
+
         public App()
         {
             InitializeComponent();
             //Username = await SecureStorage.GetAsync(Username);
             //MainPage = new AppShell();
-            MainPage = new LoginPage();
+            MainPage = new NavigationPage(new LoginPage());
+            
             
 
 
         }
+
+        protected override void OnStart()
+        {
+            
+            base.OnStart();
+        }
+
+
         protected override Window CreateWindow(IActivationState? activationState)
         {
             
@@ -39,15 +67,23 @@ namespace TrevorsRidesMaui
 
             window.Created += async (s, e) =>
             {
+                
+                string accountSessionJson = await SecureStorage.Default.GetAsync("AccountSession");
+                if (accountSessionJson != null)
+                {
+                    AccountSession = JsonSerializer.Deserialize<AccountSession>(accountSessionJson, JsonOptions);
+                }
+                
+                
                 await CheckPermissions();
-                Log.Debug("Window Created");
                 Task connectTask = ConnectWebsocket();
+                
                 
             };
 
             return window;
         }
-        public async Task Setup()
+        public async void Setup()
         {
 
         }
@@ -124,20 +160,20 @@ namespace TrevorsRidesMaui
                     Log.Debug("Exception", ex.InnerException?.Message ?? "No inner exception");
                     Log.Debug("Stack Trace", ex.StackTrace);
                 }
-                
 
 
-//                
-                if (AppShell.Current.CurrentPage is MainPage)
+
+                if ((Application.Current.MainPage as NavigationPage)?.CurrentPage is MainPage)
                 {
-                   
+                    
                     MainThread.BeginInvokeOnMainThread(() =>
                     {
-                        MainPage page = AppShell.Current.CurrentPage as MainPage;
+                        MainPage page = (Application.Current.MainPage as NavigationPage)?.CurrentPage as MainPage;
+                        //MainPage page = AppShell.Current.CurrentPage as MainPage;
                         if (trevor.isOnline)
                         {
                             page.trevorsStatus.Text = "Trevor is Online!";
-                            Log.Debug("1");
+                            
                             Log.Debug("TREvor null", trevor.latitude.HasValue.ToString());
                             try
                             {

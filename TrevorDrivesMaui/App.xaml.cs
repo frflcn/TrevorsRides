@@ -9,15 +9,20 @@ namespace TrevorDrivesMaui
 {
     public partial class App : Application
     {
+        public HttpClient HttpClient { get; set; }
+
         //public static TrevorStatus trevorStatus = new TrevorStatus(false, 40.7338893615268, -77.8858946396202);
         public static TrevorStatus trevorStatus = new TrevorStatus(false, new SpaceTime(40.7338893615268, -77.8858946396202, new DateTime(0)));
         public static ClientWebSocket client = new ClientWebSocket();
         public Random rand = new Random();
+
         public App()
         {
             InitializeComponent();
-
+            HttpClient = new HttpClient();
             MainPage = new AppShell();
+
+
         }
 
         protected override Window CreateWindow(IActivationState activationState)

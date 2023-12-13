@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Hosting;
 
-namespace TrevorsResume.Pages
+namespace TrevorsRidesServer.Pages
 {
     public class IndexModel : PageModel
     {

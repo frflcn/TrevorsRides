@@ -4,7 +4,6 @@
              xmlns:controls="clr-namespace:TrevorsRidesMaui.Controls"
              x:Class="TrevorsRidesMaui.MainPage"
              xmlns:maps2="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
-             xmlns:maps="clr-namespace:Maui.GoogleMaps;assembly=Maui.GoogleMaps"
              xmlns:sensors="clr-namespace:Microsoft.Maui.Devices.Sensors;assembly=Microsoft.Maui.Essentials"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ignore="http://www.galasoft.ch/ignore"
@@ -29,7 +28,7 @@
                 ZIndex="-1"
                 BackgroundColor="Transparent">
                 <Rectangle.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnControlTapped"/>
+                   <TapGestureRecognizer Tapped="OnControlTapped"/>
                 </Rectangle.GestureRecognizers>
             </Rectangle>
             <Label 
@@ -220,7 +219,8 @@
         <controls:RideDetails
                 x:Name="RideDetailsControl"
                 Grid.Row="3"
-                Grid.ColumnSpan="2"/>
+                Grid.ColumnSpan="2"
+                BookRidePressed="RideDetailsControl_BookRidePressed"/>
 
 
     </Grid>

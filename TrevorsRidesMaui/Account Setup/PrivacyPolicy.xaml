@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TrevorsRidesMaui.Account_Setup.PrivacyPolicy"
+             Title="Privacy Policy">
+    <ScrollView>
+        <WebView>
+            <WebView.Source>
+                <HtmlWebViewSource>
+                    <HtmlWebViewSource.Html>
+                        <![CDATA[
+                        <!DOCTYPE html>
+                            <html>
+                                <head>
+                                    <style>
+                                        li {padding: 0px; margin: 0px}
+                                    </style>
+                                </head>
+                                <body>
+                                    <p>
+                                        <h3>Privacy Policy</h3> 
+                                            <br/>
+                                        Protecting your private information is our priority. This Statement of Privacy applies to Trevor's Rides App, and Trevor's Rides and governs data collection and usage. For the purposes of this Privacy Policy, unless otherwise noted, all references to Trevor's Rides include www.trevorsrides.com. The Trevor's Rides application is a Rideshare application. By using the Trevor's Rides application, you consent to the data practices described in this statement. 
+                                            <br/><br/>
+                                        <br/><strong>Collection of your Personal Information</strong><br/>
+                                        In order to better provide you with products and services offered, Trevor's Rides may collect personally identifiable information, such as your: 
+                                            <br/>
+                                        <ul>
+                                            <li>First and Last Name</li>
+                                            <li>E-mail Address </li>
+                                            <li>Phone Number </li>
+                                        </ul>
+                                            <br/>
+                                        If you purchase Trevor's Rides's products and services, we collect billing and credit card information. This information is used to complete the purchase transaction. 
+                                            <br/><br/>
+                                        We do not collect any personal information about you unless you voluntarily provide it to us. However, you may be required to provide certain personal information to us when you elect to use certain products or services. These may include: (a) registering for an account; (b) entering a sweepstakes or contest sponsored by us or one of our partners; (c) signing up for special offers from selected third parties; (d) sending us an email message; (e) submitting your credit card or other payment information when ordering and purchasing products and services. To wit, we will use your information for, but not limited to, communicating with you in relation to services and/or products you have requested from us. We also may gather additional personal or non-personal information in the future. 
+                                            <br/><br/>
+                                        <br/><Strong>Use of your Personal Information</strong> <br/>
+                                        Trevor's Rides collects and uses your personal information to operate and deliver the services you have requested. 
+                                            <br/><br/>
+                                        Trevor's Rides may also use your personally identifiable information to inform you of other products or services available from Trevor's Rides and its affiliates. 
+                                            <br/><br/>
+                                        <br/><strong>Sharing Information with Third Parties</strong> <br/>
+                                        Trevor's Rides does not sell, rent or lease its customer lists to third parties. 
+                                            <br/><br/>
+                                        Trevor's Rides may share data with trusted partners to help perform statistical analysis, send you email or postal mail, provide customer support, or arrange for deliveries. All such third parties are prohibited from using your personal information except to provide these services to Trevor's Rides, and they are required to maintain the confidentiality of your information. 
+                                            <br/><br/>
+                                        Trevor's Rides may disclose your personal information, without notice, if required to do so by law or in the good faith belief that such action is necessary to: (a) conform to the edicts of the law or comply with legal process served on Trevor's Rides or the site; (b) protect and defend the rights or property of Trevor's Rides; and/or (c) act under exigent circumstances to protect the personal safety of users of Trevor's Rides, or the public. 
+                                            <br/><br/>
+                                        <br/><strong>Right to Deletion</strong> <br/>
+                                        Subject to certain exceptions set out below, on receipt of a verifiable request from you, we will: <br/>
+                                        <ul>
+                                            <li>Delete your personal information from our records; and </li>
+                                            <li>Direct any service providers to delete your personal information from their records. </li>
+                                        </ul>
+                                            <br/>
+                                        Please note that we may not be able to comply with requests to delete your personal information if it is necessary to: <br/>
+                                        <ul>
+                                            <li>Complete the transaction for which the personal information was collected, fulfill the terms of a written warranty or product recall conducted in accordance with federal law, provide a good or service requested by you, or reasonably anticipated within the context of our ongoing business relationship with you, or otherwise perform a contract between you and us; </li>
+                                            <li>Detect security incidents, protect against malicious, deceptive, fraudulent, or illegal activity; or prosecute those responsible for that activity; </li>
+                                            <li>Debug to identify and repair errors that impair existing intended functionality; </li>
+                                            <li>Exercise free speech, ensure the right of another consumer to exercise his or her right of free speech, or exercise another right provided for by law; </li>
+                                            <li>Comply with the California Electronic Communications Privacy Act; </li>
+                                            <li>Engage in public or peer-reviewed scientific, historical, or statistical research in the public interest that adheres to all other applicable ethics and privacy laws, when our deletion of the information is likely to render impossible or seriously impair the achievement of such research, provided we have obtained your informed consent; </li>
+                                            <li>Enable solely internal uses that are reasonably aligned with your expectations based on your relationship with us; </li>
+                                            <li>Comply with an existing legal obligation; or </li>
+                                            <li>Otherwise use your personal information, internally, in a lawful manner that is compatible with the context in which you provided the information.</li>
+                                        </ul>
+                                            <br/>
+                                        <br/><strong>Children Under Thirteen </strong><br/>
+                                        Trevor's Rides does not knowingly collect personally identifiable information from children under the age of thirteen. If you are under the age of thirteen, you must ask your parent or guardian for permission to use this application. 
+                                            <br/><br/>
+                                        <br/><strong>E-mail Communications</strong> <br/>
+                                        From time to time, Trevor's Rides may contact you via email for the purpose of providing announcements, promotional offers, alerts, confirmations, surveys, and/or other general communication. 
+                                            <br/><br/>
+                                        <br/><strong>External Data Storage Sites </strong><br/>
+                                        We may store your data on servers provided by third party hosting vendors with whom we have contracted. 
+                                            <br/><br/>
+                                        <br/><Strong>Changes to this Statement</strong> <br/>
+                                        Trevor's Rides reserves the right to change this Privacy Policy from time to time. We will notify you about significant changes in the way we treat personal information by sending a notice to the primary email address specified in your account, by placing a prominent notice on our application, and/or by updating any privacy information. Your continued use of the application and/or Services available after such modifications will constitute your: (a) acknowledgment of the modified Privacy Policy; and (b) agreement to abide and be bound by that Policy. 
+                                            <br/><br/>
+                                        <br/><strong>Contact Information</strong> <br/>
+                                        Trevor's Rides welcomes your questions or comments regarding this Statement of Privacy. If you believe that Trevor's Rides has not adhered to this Statement, please contact Trevor's Rides at: 
+                                            <br/><br/>
+                                        Trevor's Rides <br/>
+                                        9529 Cottage Lane <br/>
+                                        Petersburg, Pennsylvania 16669 
+                                            <br/><br/>
+                                        Email Address: <br/>
+                                        tmstauff@gmail.com 
+                                            <br/><br/>
+                                        Telephone number: <br/>
+                                        6104136280 
+                                            <br/><br/>
+                                        <Br/>Effective as of November 16, 2023 
+                                    </p>
+                            </body>
+                        </html>
+                        ]]>
+                    </HtmlWebViewSource.Html>
+                </HtmlWebViewSource>
+            </WebView.Source>
+        </WebView>
+    </ScrollView>
+</ContentPage>

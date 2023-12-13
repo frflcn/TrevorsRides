@@ -1,4 +1,6 @@
-﻿namespace TrevorDrivesMaui
+﻿using Maui.GoogleMaps;
+
+namespace TrevorDrivesMaui
 {
     public partial class MainPage : ContentPage
     {

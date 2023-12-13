@@ -10,9 +10,9 @@ namespace TrevorsRidesServer.Controllers
     public class RiderController : ControllerBase
     {
         static string testPath = "C://Users/tmsta/AppData/TrevorsRides/trevors_status.json";
-        static string trevorStatusFilePath = "/var/www/trevorsrides/trevors_status.json";
-        static string riderStatusFilePath = "/var/www/trevorsrides/riders_status.json";
-        static string trevorsRidesDirectory = "/var/www/trevorsrides/";
+        static string trevorStatusFilePath = "/var/data/trevorsrides/trevors_status.json";
+        static string riderStatusFilePath = "/var/data/trevorsrides/riders_status.json";
+        static string trevorsRidesDirectory = "/var/data/trevorsrides/";
         Random rand = new Random();
 
         System.Timers.Timer timer = new();

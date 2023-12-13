@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using Android.Util;
 using Microsoft.Maui.Controls;
 
 namespace TrevorsRidesMaui.Controls;

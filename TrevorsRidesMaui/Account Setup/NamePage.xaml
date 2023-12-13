@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TrevorsRidesMaui.Account_Setup.CreateAccountPage"
+             Title="CreateAccountPage"
+             BindingContext="">
+    <VerticalStackLayout
+        Padding="30,30,30,30">
+        <Label 
+            Text="Create an Account"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center" />
+        <Grid
+            Margin="0,30,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+        <Label
+            Text="First Name"
+            VerticalOptions="Center"
+            HorizontalOptions="Start" />
+        <Entry
+            x:Name="FirstNameEntry"
+            x:FieldModifier="public"
+            Grid.Row="1"/>
+        <Label
+            Text="Last Name"
+            VerticalOptions="Center"
+            HorizontalOptions="Start" 
+            Grid.Column="1"/>
+        <Entry
+            x:Name="LastNameEntry"
+            x:FieldModifier="=public"
+            Grid.Row="1"
+            Grid.Column="1" />
+        </Grid>
+        <Button
+            Text="Next"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Pressed="NextButton_Pressed"/>
+        <WebView Navigating="WebView_Navigating">
+            <WebView.Source>
+                <HtmlWebViewSource>
+                    <HtmlWebViewSource.Html>
+                        <![CDATA[
+                <HTML>
+                <BODY>
+                
+                <P style="font-size:0.92em">By filling out this form you are agreeing to our <a href="https://www.notawebsite.com">privacy policy</a>.</P>
+                </BODY>
+                </HTML>
+                ]]>
+                    </HtmlWebViewSource.Html>
+                </HtmlWebViewSource>
+            </WebView.Source>
+
+        </WebView>
+        
+    </VerticalStackLayout>
+</ContentPage>

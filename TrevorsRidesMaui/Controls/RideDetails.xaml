@@ -8,6 +8,10 @@
             <RowDefinition Height="30"/>
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="100"/>
+        </Grid.ColumnDefinitions>
         <Label 
             x:Name="PickupLabel"
             x:FieldModifier="public"
@@ -28,5 +32,14 @@
             VerticalOptions="Center" 
             HorizontalOptions="Start" 
             Grid.Row="2"/>
+        <Button
+            Grid.Column="1"
+            Grid.RowSpan="3"
+            Grid.Row="0"
+            Text="Book Ride"
+            IsEnabled="True"
+            VerticalOptions="Center"
+            Pressed="Button_Pressed"/>
+
     </Grid>
 </ContentView>

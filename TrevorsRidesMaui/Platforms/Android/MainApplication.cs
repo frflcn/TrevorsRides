@@ -5,7 +5,11 @@ using TrevorsRidesHelpers;
 
 namespace TrevorsRidesMaui
 {
-    [Application]
+    #if DEBUG                                   
+        [Application(UsesCleartextTraffic = true)]  
+    #else                                      
+        [Application]                               
+    #endif
     [MetaData("com.google.android.maps.v2.API_KEY",
             Value = APIKeys.GoogleMapsAPIKey)]
     public class MainApplication : MauiApplication

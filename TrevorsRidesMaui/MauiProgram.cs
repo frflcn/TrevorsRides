@@ -1,5 +1,9 @@
-﻿using Maui.GoogleMaps.Hosting;
+﻿#if (ANDROID || IOS)
+using Maui.GoogleMaps.Hosting;
+
+#endif
 using Microsoft.Extensions.Logging;
+using TrevorsRidesHelpers;
 [assembly: XamlCompilation(XamlCompilationOptions.Compile)]
 namespace TrevorsRidesMaui
 {
@@ -26,7 +30,7 @@ namespace TrevorsRidesMaui
             #if ANDROID
                         builder.UseGoogleMaps();
             #elif IOS
-                    builder.UseGoogleMaps(Variables.GOOGLE_MAPS_IOS_API_KEY);
+                    builder.UseGoogleMaps(APIKeys.GoogleMapsAPIKey);
             #endif
             return builder.Build();
         }
