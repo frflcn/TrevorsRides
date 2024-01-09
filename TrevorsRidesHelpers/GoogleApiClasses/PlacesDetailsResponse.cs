@@ -1,5 +1,4 @@
-﻿#if (ANDROID || IOS)
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,7 +19,7 @@ namespace TrevorsRidesHelpers.GoogleApiClasses
         public string? adr_address { get; set; }
         public string? business_status { get; set; }
         public bool? curbside_pickup { get; set; }
-        public PlaceOpeningHours? current_openeing_hours { get; set; }
+        public PlaceOpeningHours? current_opening_hours { get; set; }
         public bool? delivery { get; set; }
         public bool? dine_in { get; set; }
         public PlaceEditorialSummary? editorial_summary { get; set; }
@@ -157,4 +156,3 @@ namespace TrevorsRidesHelpers.GoogleApiClasses
 
 
 }
-#endif

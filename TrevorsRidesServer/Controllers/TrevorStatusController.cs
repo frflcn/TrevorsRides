@@ -23,7 +23,7 @@ namespace TrevorsRidesServer.Controllers
         [HttpPut(Name = "PutTrevorsStatus")]
         public void Put(bool isOnline, double latitude, double longitude)
         {
-            string json = JsonSerializer.Serialize(new TrevorStatus(isOnline, new SpaceTime(latitude, longitude, new DateTime(0))));
+            string json = JsonSerializer.Serialize(new DriverStatus(isOnline, new SpaceTime(latitude, longitude, new DateTime(0))));
             if (OperatingSystem.IsWindows())
             {
                 
@@ -39,7 +39,7 @@ namespace TrevorsRidesServer.Controllers
         [HttpPost(Name = "PostTrevorsStatus")]
         public void Post(bool isOnline, double latitude, double longitude)
         {
-            string json = JsonSerializer.Serialize(new TrevorStatus(isOnline, new SpaceTime(latitude, longitude, new DateTime(0))));
+            string json = JsonSerializer.Serialize(new DriverStatus(isOnline, new SpaceTime(latitude, longitude, new DateTime(0))));
 
             if (OperatingSystem.IsWindows())
             {

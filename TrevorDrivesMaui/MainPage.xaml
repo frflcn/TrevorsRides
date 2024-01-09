@@ -2,7 +2,8 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TrevorDrivesMaui.MainPage"
-             xmlns:maps="clr-namespace:Maui.GoogleMaps;assembly=Maui.GoogleMaps">
+             xmlns:maps="http://schemas.microsoft.com/dotnet/2021/maui/maps"
+             xmlns:sensors="clr-namespace:Microsoft.Maui.Devices.Sensors;assembly=Microsoft.Maui.Essentials">
    
 
     <ScrollView>
@@ -56,8 +57,21 @@
                           HorizontalOptions="Fill"
                           VerticalOptions="FillAndExpand"
                       
-                          MyLocationEnabled="False"
-                          InitialCameraUpdate="40.7966918008437, -77.87240124095848, 7">
+                          IsShowingUser="False">
+                <x:Arguments>
+                    <maps:MapSpan>
+                        <x:Arguments>
+                            <sensors:Location>
+                                <x:Arguments>
+                                    <x:Double>40.796691</x:Double>
+                                    <x:Double>-77.87240</x:Double>
+                                </x:Arguments>
+                            </sensors:Location>
+                            <x:Double>0.01</x:Double>
+                            <x:Double>0.01</x:Double>
+                        </x:Arguments>
+                    </maps:MapSpan>
+                </x:Arguments>
 
 
             </maps:Map>

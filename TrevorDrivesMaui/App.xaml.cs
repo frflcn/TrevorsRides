@@ -12,7 +12,7 @@ namespace TrevorDrivesMaui
         public HttpClient HttpClient { get; set; }
 
         //public static TrevorStatus trevorStatus = new TrevorStatus(false, 40.7338893615268, -77.8858946396202);
-        public static TrevorStatus trevorStatus = new TrevorStatus(false, new SpaceTime(40.7338893615268, -77.8858946396202, new DateTime(0)));
+        public static DriverStatus trevorStatus = new DriverStatus(false, new SpaceTime(40.7338893615268, -77.8858946396202, new DateTime(0)));
         public static ClientWebSocket client = new ClientWebSocket();
         public Random rand = new Random();
 
@@ -40,7 +40,7 @@ namespace TrevorDrivesMaui
         }
         public async Task ConnectWebsocket()
         {
-            Uri uri = new Uri("wss://www.trevorsrides.com/wss/Trevor");
+            Uri uri = new Uri("wss://www.trevorsrides.com/wss/Driver");
             
             CancellationTokenSource cts = new CancellationTokenSource();
             await client.ConnectAsync(uri, cts.Token);
@@ -58,7 +58,7 @@ namespace TrevorDrivesMaui
                 var responseTask = await client.ReceiveAsync(buffer, cts.Token);
 
                 string message = System.Text.Encoding.ASCII.GetString(buffer, 0, responseTask.Count);
-                TrevorStatus trevor = JsonSerializer.Deserialize<TrevorStatus>(message);
+                DriverStatus driverStatus = JsonSerializer.Deserialize<DriverStatus>(message);
                 
                 if (AppShell.Current.CurrentPage is MainPage)
                 {
@@ -82,8 +82,8 @@ namespace TrevorDrivesMaui
                         location = await Geolocation.Default.GetLocationAsync(request);
                     }
                     trevorStatus.lastKnownLocation = new SpaceTime(new Position(location.Latitude, location.Longitude), location.Timestamp.DateTime);
-
-                    string message = JsonSerializer.Serialize(trevorStatus);
+                    WebsocketMessage websocketMessage = new WebsocketMessage(MessageType.DriverUpdate, trevorStatus);
+                    string message = JsonSerializer.Serialize(websocketMessage);
                     ArraySegment<byte> buffer = new ArraySegment<byte>(new byte[1024]);
                     buffer = Encoding.ASCII.GetBytes(message);
 

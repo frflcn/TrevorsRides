@@ -1,4 +1,4 @@
-﻿#if (ANDROID || IOS)
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -176,4 +176,3 @@ namespace TrevorsRidesHelpers.GoogleApiClasses
 
 
 }
-#endif

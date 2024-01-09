@@ -21,11 +21,15 @@ namespace TrevorsRidesServer.Models
         public RetryCount RetryCount { get; set; }
         public List<HashedSessionToken> SessionTokens { get; set; }
         public HashedRideSessionToken? RideSessionToken { get; set; }
+        //public string ServerState { get; set; }
 
 
 
 
-
+        /// <summary>
+        /// Adds a HashedSessionToken to the AccountEntry's Session Tokens then returns an AccountSession with the unhashed Token
+        /// </summary>
+        /// <returns>An Account Session</returns>
         public AccountSession ReturnAccountSession()
         {
             SessionToken sessionToken = new SessionToken();
@@ -69,6 +73,12 @@ namespace TrevorsRidesServer.Models
                 return false;
             }
             
+        }
+
+        public bool VerifySessionToken(string token)
+        {
+            if (SessionTokens.Exists(e => e.Token == SessionToken.Hash(token) && e.IsExpired == false)) return true;
+            else return false;
         }
 
         public bool VerifySessionToken(SessionToken sessionToken)

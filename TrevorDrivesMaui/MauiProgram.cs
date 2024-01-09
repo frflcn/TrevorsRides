@@ -1,5 +1,4 @@
 ﻿#if (ANDROID || IOS)
-using Maui.GoogleMaps.Hosting;
 using TrevorsRidesHelpers;
 using Microsoft.Extensions.Logging;
 
@@ -16,16 +15,13 @@ namespace TrevorDrivesMaui
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                });
+                })
+                .UseMauiMaps();
 
             #if DEBUG
 		        builder.Logging.AddDebug();
             #endif
-            #if ANDROID
-                builder.UseGoogleMaps();
-            #elif IOS
-                builder.UseGoogleMaps(APIKeys.GoogleMapsAPIKey);
-            #endif
+
             return builder.Build();
         }
     }

@@ -9,12 +9,14 @@ using Microsoft.Maui.Controls.Maps;
 using TrevorsRidesHelpers;
 using System.Windows.Input;
 using Microsoft.Maui.Storage;
+using TrevorsRidesMaui.BackgroundTasks;
 
 
 namespace TrevorsRidesMaui
 {
     public partial class App : Application
     {
+        public static bool RideRequested { get; set; }
         public static HttpClient HttpClient { get; set; }
         public ClientWebSocket client;
         public static AccountSession? AccountSession { get; set; }
@@ -26,8 +28,8 @@ namespace TrevorsRidesMaui
                 }
         };
 
-        public TrevorStatus? trevor;
-        public Pin trevorsLocation = new Pin()
+        public static DriverStatus? TrevorsStatus;
+        public static Pin TrevorsLocation = new Pin()
         {
             Label = "Trevor is here",
             Type = PinType.Place
@@ -36,28 +38,46 @@ namespace TrevorsRidesMaui
         public string Username { get; set; }
         public string Password { get; set; }
 
+
+
+
+
         static App()
         {
+            RideRequested = false;
             HttpClient = new HttpClient();
+            HttpClient.Timeout = TimeSpan.FromSeconds(20);
         }
+
+
+
+
 
         public App()
         {
             InitializeComponent();
+            MainPage = new NavigationPage(new LoginPage());
             //Username = await SecureStorage.GetAsync(Username);
             //MainPage = new AppShell();
-            MainPage = new NavigationPage(new LoginPage());
-            
-            
+            //MainPage = new NavigationPage(new LoginPage());
+
+
 
 
         }
+
+
+
+
 
         protected override void OnStart()
         {
             
             base.OnStart();
         }
+
+
+
 
 
         protected override Window CreateWindow(IActivationState? activationState)
@@ -67,35 +87,62 @@ namespace TrevorsRidesMaui
 
             window.Created += async (s, e) =>
             {
+                Log.Debug("CREATED WINDOW");
+
+
                 
-                string accountSessionJson = await SecureStorage.Default.GetAsync("AccountSession");
-                if (accountSessionJson != null)
-                {
-                    AccountSession = JsonSerializer.Deserialize<AccountSession>(accountSessionJson, JsonOptions);
-                }
-                
-                
+
+
+
                 await CheckPermissions();
-                Task connectTask = ConnectWebsocket();
-                
-                
+
+
+   
             };
 
+            window.Deactivated += (s, e) =>
+            {
+                Log.Debug("Deactivated");
+            };
+            window.Stopped += (s, e) =>
+            {
+                Log.Debug("Stopped");
+            };
+            window.Destroying += (s, e) =>
+            {
+
+                RideRequestService.StopService();
+                
+                Log.Debug("Destroying");
+            };
             return window;
         }
+
+
+
+
+
         public async void Setup()
         {
 
         }
+
+
+
+
+
         public async Task ConnectWebsocket()
         {
+            Log.Debug("Connecting Websockets");
             Uri uri = new Uri("wss://www.trevorsrides.com/wss/Rider");
             ClientWebSocket client = new ClientWebSocket();
             CancellationTokenSource cts = new CancellationTokenSource();
 
+
             try
             {
-                await client.ConnectAsync(uri, cts.Token);
+                await client.ConnectAsync(uri, cts.Token).ConfigureAwait(false);
+                Log.Debug("Connected Websocket");
             }
             catch (WebSocketException ex)
             {
@@ -109,8 +156,8 @@ namespace TrevorsRidesMaui
                 Log.Debug("Websocket Connection Failed", ex.Message);
                 Log.Debug("Websocket Connection Failed", ex.GetType().ToString());
             }
-            
-            
+
+            Log.Debug("Websocket Connected");
             
             
             
@@ -127,7 +174,7 @@ namespace TrevorsRidesMaui
                 try
                 {
                     Log.Debug("BEfore Desrialize");
-                    trevor = JsonSerializer.Deserialize<TrevorStatus>(message);
+                    TrevorsStatus = JsonSerializer.Deserialize<DriverStatus>(message);
                     Log.Debug("AFTER deserialize");
                 }
                 catch (JsonException ex) 
@@ -148,10 +195,10 @@ namespace TrevorsRidesMaui
                     Log.Debug("Exception", ex.GetType().ToString());
                 }
                 Log.Debug("HELO");
-                Log.Debug("IS null", trevor == null ? "null" : "Not null");
+                Log.Debug("IS null", TrevorsStatus == null ? "null" : "Not null");
                 try
                 {
-                    Log.Debug("TREVOR", JsonSerializer.Serialize(trevor));
+                    Log.Debug("TREVOR", JsonSerializer.Serialize(TrevorsStatus));
                 }
                 catch (Exception ex)
                 {
@@ -170,14 +217,14 @@ namespace TrevorsRidesMaui
                     {
                         MainPage page = (Application.Current.MainPage as NavigationPage)?.CurrentPage as MainPage;
                         //MainPage page = AppShell.Current.CurrentPage as MainPage;
-                        if (trevor.isOnline)
+                        if (TrevorsStatus.isOnline)
                         {
                             page.trevorsStatus.Text = "Trevor is Online!";
                             
-                            Log.Debug("TREvor null", trevor.latitude.HasValue.ToString());
+                            Log.Debug("TREvor null", TrevorsStatus.latitude.HasValue.ToString());
                             try
                             {
-                                trevorsLocation.Location = new Location(trevor.latitude!.Value, trevor.longitude!.Value);
+                                TrevorsLocation.Location = new Location(TrevorsStatus.latitude!.Value, TrevorsStatus.longitude!.Value);
                             }
                             catch (Exception ex)
                             {
@@ -188,12 +235,12 @@ namespace TrevorsRidesMaui
                             }
                             
                             
-                            if (!page.Map.Pins.Contains(trevorsLocation))
+                            if (!page.Map.Pins.Contains(TrevorsLocation))
                             {
                                 Log.Debug("2");
                                 try
                                 {
-                                    page.Map.Pins.Add(trevorsLocation);
+                                    page.Map.Pins.Add(TrevorsLocation);
                                 }
                                 catch(Exception ex)
                                 {
@@ -204,7 +251,7 @@ namespace TrevorsRidesMaui
                                 }
                                 
                                 Log.Debug("3");
-                                trevorsLocation.Location = new MauiLocation.Location(trevor.latitude!.Value, trevor.longitude!.Value);
+                                TrevorsLocation.Location = new MauiLocation.Location(TrevorsStatus.latitude!.Value, TrevorsStatus.longitude!.Value);
                                 Log.Debug("Finished");
                             }
                         }
@@ -212,9 +259,9 @@ namespace TrevorsRidesMaui
                         {
                             page.trevorsStatus.Text = "Trevor is offline :(";
 
-                            if (page.Map.Pins.Contains(trevorsLocation))
+                            if (page.Map.Pins.Contains(TrevorsLocation))
                             {
-                                page.Map.Pins.Remove(trevorsLocation);
+                                page.Map.Pins.Remove(TrevorsLocation);
                                 
                             }
                         }
@@ -225,6 +272,11 @@ namespace TrevorsRidesMaui
             }
             
         }
+
+
+
+
+
         public static async Task<bool> CheckPermissions()
         {
             PermissionStatus locationStatus = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();

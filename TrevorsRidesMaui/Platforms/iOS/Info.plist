@@ -28,14 +28,16 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
-  <key>NSLocationWhenInUseUsageDescription</key>
-  <string>I use your location to determine trip times and let the customer know where you are.</string>
-  <key>NSLocationTemporaryUsageDescriptionDictionary</key>
-  <array>
-    <dict>
-      <key>TemporaryFullAccuracyUsageDescription</key>
-      <string>It's a rideshare app, location is important.</string>
-    </dict>
-  </array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>I use your location to assist in giving you a ride.</string>
+	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
+	<array>
+		<dict>
+			<key>TemporaryFullAccuracyUsageDescription</key>
+			<string>It&apos;s a rideshare app, location is important.</string>
+		</dict>
+	</array>
+	<key>CFBundleIdentifier</key>
+	<string></string>
 </dict>
 </plist>

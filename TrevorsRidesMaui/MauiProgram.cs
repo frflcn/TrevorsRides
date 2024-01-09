@@ -1,7 +1,6 @@
-﻿#if (ANDROID || IOS)
-using Maui.GoogleMaps.Hosting;
-
-#endif
+﻿using Microsoft.AppCenter;
+using Microsoft.AppCenter.Analytics;
+using Microsoft.AppCenter.Crashes;
 using Microsoft.Extensions.Logging;
 using TrevorsRidesHelpers;
 [assembly: XamlCompilation(XamlCompilationOptions.Compile)]
@@ -24,14 +23,14 @@ namespace TrevorsRidesMaui
                 })
                 .UseMauiMaps();
 
+            AppCenter.Start($"android={APIKeys.AndroidAppCenterString};" +
+                  $"ios={APIKeys.IOSAppCenterString};" +
+                  typeof(Analytics), typeof(Crashes));
+
             #if DEBUG
-		            builder.Logging.AddDebug();
+                builder.Logging.AddDebug();
             #endif
-            #if ANDROID
-                        builder.UseGoogleMaps();
-            #elif IOS
-                    builder.UseGoogleMaps(APIKeys.GoogleMapsAPIKey);
-            #endif
+
             return builder.Build();
         }
     }

@@ -47,7 +47,15 @@ public partial class PasswordPage : ContentPage
                     new Json.PhoneNumberJsonConverter()
                 }
             };
-			await SecureStorage.Default.SetAsync("AccountSession", await response.Content.ReadAsStringAsync());
+			try
+			{
+                await SecureStorage.Default.SetAsync("AccountSession", await response.Content.ReadAsStringAsync());
+            }
+			catch (Exception ex)
+			{
+				Console.WriteLine("This is an output write to secure storage failed");
+			}
+			
             App.AccountSession = await response.Content.ReadFromJsonAsync<AccountSession>(jsonOptions);
 			Application.Current.MainPage = new NavigationPage(new MainPage());
 

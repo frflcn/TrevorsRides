@@ -3,14 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:TrevorsRidesMaui.Controls"
              x:Class="TrevorsRidesMaui.MainPage"
-             xmlns:maps2="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
+             xmlns:maps2="http://schemas.microsoft.com/dotnet/2021/maui/maps"
              xmlns:sensors="clr-namespace:Microsoft.Maui.Devices.Sensors;assembly=Microsoft.Maui.Essentials"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ignore="http://www.galasoft.ch/ignore"
              mc:Ignorable="ignore">
+    <!--clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps-->
+    <!---->
 
-    
-        <Grid>
+    <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="30" />
                 <RowDefinition Height="30" />
@@ -85,49 +86,7 @@
 
 
 
-            <!--<maps:Map x:Name="Map" 
-                      x:FieldModifier="public"
-                      Grid.Row="2"
-                      Grid.ColumnSpan="2"
-                      HorizontalOptions="Fill"
-                      VerticalOptions="FillAndExpand"
-                      Margin="0,100,0,0"
-                      
-                      
-                      MyLocationEnabled="True"
-                      InitialCameraUpdate="40.7966918008437, -77.87240124095848, 13"
-                      
-                      MapClicked="Map_MapClicked">
-                <maps:Map.Pins>
-                    <maps:Pin
-                        x:Name="trevorsLocation"
-                        x:FieldModifier="public"
-                        Label="Trevor"
-                        IsVisible="False"/>
-                    <maps:Pin
-                        x:Name="PickupLocation"
-                        x:FieldModifier="public"
-                        Label="Pickup"
-                        IsVisible="False"/>
-                    <maps:Pin
-                        x:Name="DropoffLocation"
-                        x:FieldModifier="public"
-                        Label="Dropoff"
-                        IsVisible="False"/>
-                </maps:Map.Pins>
-                <maps:Map.Polylines>
-                    <maps:Polyline
-                        x:Name="RoutePolyline"
-                        x:FieldModifier="public"
-                        StrokeWidth="5"/>
-                </maps:Map.Polylines>
-                <maps:Map.GestureRecognizers>
-                    <TapGestureRecognizer 
-                        Tapped="OnControlTapped"/>
-                </maps:Map.GestureRecognizers>
 
-
-            </maps:Map>-->
             <maps2:Map 
                 x:Name="Map" 
                 x:FieldModifier="public"
@@ -143,7 +102,7 @@
                       
                 MapClicked="Map_MapClicked">
                 <x:Arguments>
-                    <MapSpan>
+                    <maps2:MapSpan>
                         <x:Arguments>
                             <sensors:Location>
                                 <x:Arguments>
@@ -154,54 +113,10 @@
                             <x:Double>0.01</x:Double>
                             <x:Double>0.01</x:Double>
                         </x:Arguments>
-                    </MapSpan>
+                    </maps2:MapSpan>
                 </x:Arguments>
                 <maps2:Map.Pins>
-                    <!--<maps2:Pin
-                        x:Name="trevorsLocation"
-                        x:FieldModifier="public"
-                        Label="Trevor"
-                        Type="Place"
-                        Address="HI">
-                        <maps2:Pin.Location>
-                            <sensors:Location>
-                                <x:Arguments>
-                                    <x:Double>40.796691</x:Double>
-                                    <x:Double>-77.87240</x:Double>
-                                </x:Arguments>
-                            </sensors:Location>  
-                        </maps2:Pin.Location>
-                    </maps2:Pin>
-                    <maps2:Pin
-                        x:Name="PickupLocation"
-                        x:FieldModifier="public"
-                        Label="Pickup"
-                        Type="Place"
-                        Address="Hi">
-                        <maps2:Pin.Location>
-                            <sensors:Location>
-                                <x:Arguments>
-                                    <x:Double>40.796691</x:Double>
-                                    <x:Double>-77.87240</x:Double>
-                                </x:Arguments>
-                            </sensors:Location>
-                        </maps2:Pin.Location>
-                    </maps2:Pin>
-                    <maps2:Pin
-                        x:Name="DropoffLocation"
-                        x:FieldModifier="public"
-                        Label="Dropoff"
-                        Type="Place"
-                        Address="Hi">
-                        <maps2:Pin.Location>
-                            <sensors:Location>
-                                <x:Arguments>
-                                    <x:Double>40.796691</x:Double>
-                                    <x:Double>-77.87240</x:Double>
-                                </x:Arguments>
-                            </sensors:Location>
-                        </maps2:Pin.Location>
-                    </maps2:Pin>-->
+
                 </maps2:Map.Pins>
                 <maps2:Map.MapElements>
                     

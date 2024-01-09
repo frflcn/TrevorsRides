@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Org.BouncyCastle.Utilities.Zlib;
 using PhoneNumbers;
 using TrevorsRidesHelpers;
 
@@ -11,6 +13,8 @@ namespace TrevorsRidesServer.Models
 
         public DbSet<AccountSetupEntry> AccountSetups { get; set; }
         public DbSet<AccountEntry> Accounts { get; set; }
+        //public DbSet<AccountEntry> DriverAccounts { get; set; }
+
         public string DbPath { get; }
 
         static RidesModel()
@@ -144,5 +148,51 @@ namespace TrevorsRidesServer.Models
             return result;
         }
 
+    }
+    //TODO: Delete This
+    public class Example
+    {
+        public async void Stuff()
+        {
+            using(var context = new RidesModel())
+            {
+                context.Database.GetDbConnection().CreateCommand().ExecuteReader().
+            }
+            MemoryStream inputStream = new MemoryStream();
+            var builder = new SqliteConnectionStringBuilder();
+            builder.DataSource = "/var/data/trevorsrides/RidesModel.db";
+
+            var connection = new SqliteConnection(builder.ConnectionString);
+            connection.Open();
+            var command = connection.CreateCommand();
+            command.CommandText =
+            @"
+                INSERT INTO data(value)
+                VALUES (zeroblob($length));
+
+                SELECT last_insert_rowid();
+            ";
+            command.Parameters.AddWithValue("$length", inputStream.Length);
+            var rowid = (long)command.ExecuteScalar();
+
+            using (var writeStream = new SqliteBlob(connection, "data", "value", rowid))
+            {
+                // NB: Although SQLite doesn't support async, other types of streams do
+                await inputStream.CopyToAsync(writeStream);
+            }
+
+            using (var writeStream = new SqliteBlob(connection, "RidesInProgress", "RideHistory", rowid))
+            {
+                writeStream.WriteAsync(new byte[1024]);
+                await inputStream.CopyToAsync(writeStream);
+            }
+            var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                var dataTable = reader.GetSchemaTable();
+                dataTable.
+            }
+            reader
+        }
     }
 }

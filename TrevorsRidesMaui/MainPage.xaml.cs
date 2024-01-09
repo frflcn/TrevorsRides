@@ -11,6 +11,7 @@ using Microsoft.Maui.Controls.Maps;
 using System.Diagnostics;
 using TrevorsRidesHelpers;
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Http.Json;
 
 namespace TrevorsRidesMaui
 {
@@ -21,12 +22,12 @@ namespace TrevorsRidesMaui
         Place? FromPlace;
 
 
-        Microsoft.Maui.Controls.Maps.Pin PickUpLocationPin = new Microsoft.Maui.Controls.Maps.Pin()
+        Pin PickUpLocationPin = new Pin()
         {
             Label = "Pick up",
             Type = Microsoft.Maui.Controls.Maps.PinType.Place
         };
-        Microsoft.Maui.Controls.Maps.Pin DropOffLocationPin = new Microsoft.Maui.Controls.Maps.Pin()
+        Pin DropOffLocationPin = new Pin()
         {
             Label = "DropOff up",
             Type = Microsoft.Maui.Controls.Maps.PinType.Place
@@ -73,7 +74,7 @@ namespace TrevorsRidesMaui
 
         
 
-        private void Map_MapClicked(object sender, Maui.GoogleMaps.MapClickedEventArgs e)
+        private void Map_MapClicked(object sender, MapClickedEventArgs e)
         {
             this.FromAddress.TextEditor.Unfocus();
             this.ToAddress.TextEditor.Unfocus();
@@ -325,13 +326,22 @@ namespace TrevorsRidesMaui
             }
             Uri uri = new Uri("https://routes.googleapis.com/directions/v2:computeRoutes");
             RoutesRequest request;
-            if ((Application.Current as App) == null)
-                Log.Debug("APPLICATION MAUI", "NULLLLL");
-            if ((Application.Current as App)!.trevor.isOnline)
+
+            if (Application.Current == null)
+            {
+                Log.Debug("Application Null");
+            }
+            
+            if (App.TrevorsStatus == null)
+            {
+                Log.Debug("Trevor Null");
+            }
+
+            if (App.TrevorsStatus.isOnline)
             {
                 request = new RoutesRequest()
                 {
-                    origin = (Application.Current as App)!.trevor.endPoint!.position.ToWaypoint(),
+                    origin = App.TrevorsStatus.endPoint!.position.ToWaypoint(),
                     intermediates = new Waypoint[] { FromPlace.ToWaypoint() },
                     destination = ToPlace.ToWaypoint(),
                     polylineQuality = PolylineQuality.OVERVIEW
@@ -362,7 +372,8 @@ namespace TrevorsRidesMaui
             RoutesResponse route = JsonSerializer.Deserialize<RoutesResponse>(jsonResponse);
 
             Stopwatch stopwatch = Stopwatch.StartNew();
-            List<Maui.GoogleMaps.Position> polyline;
+            //List<Maui.GoogleMaps.Position> polyline;
+            List<MauiLocation.Location> polyline;
             Viewport viewPort;
             if (request.intermediates == null)
             {
@@ -454,9 +465,9 @@ namespace TrevorsRidesMaui
         }
 
         //Probably cuts off the last point in the polyline but also probably isn't noticable with lots of points
-        public static List<Maui.GoogleMaps.Position> Decode(string encodedPoints)
+        public static List<MauiLocation.Location> Decode(string encodedPoints)
         {
-            List<Maui.GoogleMaps.Position> decodedPoints = new List<Maui.GoogleMaps.Position>();
+            List<MauiLocation.Location> decodedPoints = new List<MauiLocation.Location>();
             if (string.IsNullOrEmpty(encodedPoints))
                 throw new ArgumentNullException("encodedPoints");
 
@@ -501,19 +512,19 @@ namespace TrevorsRidesMaui
 
                 currentLng += (sum & 1) == 1 ? ~(sum >> 1) : (sum >> 1);
 
-                decodedPoints.Add(new Maui.GoogleMaps.Position(Convert.ToDouble(currentLat) / 1E5, Convert.ToDouble(currentLng) / 1E5));
+                decodedPoints.Add(new MauiLocation.Location(Convert.ToDouble(currentLat) / 1E5, Convert.ToDouble(currentLng) / 1E5));
 
             }
             return decodedPoints;
         }
-        public static List<Maui.GoogleMaps.Position> DecodeWithZoom(string encodedPoints, Viewport viewport)
+        public static List<MauiLocation.Location> DecodeWithZoom(string encodedPoints, Viewport viewport)
         {
             double latitudeRange = viewport.high.latitude - viewport.low.latitude;
             double longitudeRange = viewport.high.longitude - viewport.low.longitude;
-            Maui.GoogleMaps.Position? lastPosition = null;
-            Maui.GoogleMaps.Position thisPosition;
+            MauiLocation.Location? lastPosition = null;
+            MauiLocation.Location thisPosition;
 
-            List<Maui.GoogleMaps.Position> decodedPoints = new List<Maui.GoogleMaps.Position>();
+            List<MauiLocation.Location> decodedPoints = new List<MauiLocation.Location>();
             if (string.IsNullOrEmpty(encodedPoints))
                 throw new ArgumentNullException("encodedPoints");
 
@@ -558,8 +569,8 @@ namespace TrevorsRidesMaui
                 
                 currentLng += (sum & 1) == 1 ? ~(sum >> 1) : (sum >> 1);
                 
-                thisPosition = new Maui.GoogleMaps.Position(Convert.ToDouble(currentLat) / 1E5, Convert.ToDouble(currentLng) / 1E5);
-                if (lastPosition == null || Math.Abs(thisPosition.Latitude - lastPosition.Value.Latitude) > latitudeRange / 100 || Math.Abs(thisPosition.Longitude - lastPosition.Value.Longitude) > longitudeRange /100)
+                thisPosition = new MauiLocation.Location(Convert.ToDouble(currentLat) / 1E5, Convert.ToDouble(currentLng) / 1E5);
+                if (lastPosition == null || Math.Abs(thisPosition.Latitude - lastPosition.Latitude) > latitudeRange / 100 || Math.Abs(thisPosition.Longitude - lastPosition.Longitude) > longitudeRange /100)
                 {
                     decodedPoints.Add(thisPosition);
                     lastPosition = thisPosition;
@@ -569,7 +580,7 @@ namespace TrevorsRidesMaui
             }
             return decodedPoints;
         }
-        public Viewport GetViewPort(List<Maui.GoogleMaps.Position> polyline)
+        public Viewport GetViewPort(List<MauiLocation.Location> polyline)
         {
             Viewport viewport = new Viewport()
             {
@@ -606,9 +617,26 @@ namespace TrevorsRidesMaui
             return viewport;
         }
 
-        private void RideDetailsControl_BookRidePressed(object sender, EventArgs e)
+        private async void RideDetailsControl_BookRidePressed(object sender, EventArgs e)
         {
-            Navigation.PushAsync(new BookRidePage());
+            if (FromPlace == null || ToPlace == null)
+            {
+                return;
+            }
+            RoutesRequest requestedRoute = new RoutesRequest()
+            {
+                origin = FromPlace.ToWaypoint(),
+                destination = ToPlace.ToWaypoint()
+            };
+            client = App.HttpClient;
+            JsonContent content = JsonContent.Create<RoutesRequest>(requestedRoute);
+            content.Headers.Add("User-ID", App.AccountSession.Account.Id.ToString());
+            content.Headers.Add("Session-Token", App.AccountSession.SessionToken.Token);
+            Log.Debug("RoutesRequest", JsonSerializer.Serialize<RoutesRequest>(requestedRoute));
+            HttpResponseMessage response = await client.PutAsync($"{Helpers.Domain}/api/CreateCheckoutSession", content);
+
+            Log.Debug("CreateCheckoutSessionURL", await response.Content.ReadAsStringAsync());
+            await Navigation.PushAsync(new BookRidePage(await response.Content.ReadAsStringAsync()));
                 
         }
     }

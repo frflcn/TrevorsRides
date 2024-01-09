@@ -12,7 +12,19 @@ namespace TrevorsRidesHelpers
 {
     public class Json
     {
+        public static JsonSerializerOptions Options { get; set; }
         public static PhoneNumberUtil util = PhoneNumberUtil.GetInstance();
+        static Json()
+        {
+            Options = new JsonSerializerOptions()
+            {
+                Converters =
+                {
+                    new Json.PhoneNumberJsonConverter()
+                }
+
+            };
+        }
         public class PhoneNumberJsonConverter : JsonConverter<PhoneNumber>
         {
             public override PhoneNumber Read(

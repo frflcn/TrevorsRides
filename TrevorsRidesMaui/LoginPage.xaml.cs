@@ -5,17 +5,23 @@ using TrevorsRidesHelpers;
 using TrevorsRidesMaui.Account_Setup;
 using TRH = TrevorsRidesHelpers;
 using PhoneNumbers;
+using TrevorsRidesMaui.BackgroundTasks;
 
 namespace TrevorsRidesMaui;
 
 public partial class LoginPage : ContentPage
 {
-	private HttpClient _httpClient;
+	Random random = new Random();
+	HttpClient httpClient;
+
 	public bool IsSupported { get; set; }
 	public bool ContactedServer { get; set; }
+
+
 	public LoginPage()
 	{
-		PhoneNumberUtil util = PhoneNumberUtil.GetInstance();
+
+        PhoneNumberUtil util = PhoneNumberUtil.GetInstance();
 		PhoneNumber number = util.Parse("6104136280", "US");
 		JsonSerializerOptions jsonOptions  = new JsonSerializerOptions
         {
@@ -25,14 +31,16 @@ public partial class LoginPage : ContentPage
 				}
         };
         Log.Debug("Json Serializer PHone: ", JsonSerializer.Serialize<PhoneNumber>(number, jsonOptions));
-		_httpClient = App.HttpClient;
+		httpClient = App.HttpClient;
 		InitializeComponent();
 		IsSupported = true;
 		ContactedServer = false;
-
-
-
     }
+
+
+
+
+
 	public async void LoginButton_Pressed(object sender, EventArgs e)
     {
 		if (!IsSupported)
@@ -47,7 +55,7 @@ public partial class LoginPage : ContentPage
 		HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{Helpers.Domain}/api/Login");
 		request.Headers.Add("Email", EmailEntry.Text);
 		request.Headers.Add("Password", PasswordEntry.Text);
-		HttpResponseMessage response = await _httpClient.SendAsync(request);
+		HttpResponseMessage response = await httpClient.SendAsync(request);
 
         JsonSerializerOptions jsonOptions = new JsonSerializerOptions
         {
@@ -59,9 +67,18 @@ public partial class LoginPage : ContentPage
 		Log.Debug("LOGIN", await response.Content.ReadAsStringAsync());
         if (response.StatusCode == HttpStatusCode.OK)
 		{
-			await SecureStorage.Default.SetAsync("AccountSession", await response.Content.ReadAsStringAsync());
+            try
+            {
+                await SecureStorage.Default.SetAsync("AccountSession", await response.Content.ReadAsStringAsync());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("This is an output write to secure storage failed");
+            }
+
 			App.AccountSession = await response.Content.ReadFromJsonAsync<AccountSession>(jsonOptions);
-            Application.Current.MainPage = new NavigationPage(new MainPage());
+			Application.Current.MainPage = new NavigationPage(new MainPage());
+			RideRequestService.StartService();
 			
         }
 		else
@@ -71,6 +88,8 @@ public partial class LoginPage : ContentPage
     }
 		
     
+
+
 
     private void CreateAccountButton_Pressed(object sender, EventArgs e)
     {
@@ -87,17 +106,92 @@ public partial class LoginPage : ContentPage
         //Application.Current.MainPage = new NavigationPage(new CreateAccountPage());
         (Application.Current.MainPage as NavigationPage).PushAsync(new CreateAccountPage());
     }
+
+
+
+
+
 	protected async override void OnAppearing()
 	{
 		base.OnAppearing();
-        Log.Debug("OnApperaing", "PRior");
-        await CheckVersion();
-		Log.Debug("OnApperaing");
+        Task checkVersionTask = CheckVersion();
+		Task autoLoginTask = AutoLogin();
+		await Task.Delay(1000);
+		Log.Debug("AUTO LOGIN", $"Status: {autoLoginTask.Status}");
+		Log.Debug("CHECK VERSION", $"Status: {checkVersionTask.Status}");
+
+		await Task.WhenAll(checkVersionTask, autoLoginTask);
+        ContactedServer = true;
     }
+
+
+
+
+
+	private async Task<bool> AutoLogin()
+	{
+        string accountSessionJson = await SecureStorage.Default.GetAsync("AccountSession");
+
+        if (string.IsNullOrEmpty(accountSessionJson))
+        {
+			return false;
+        }
+
+        App.AccountSession = JsonSerializer.Deserialize<AccountSession>(accountSessionJson, Json.Options);
+        Uri uri = new Uri($"{Helpers.Domain}/api/Login");
+		HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri);
+		request.Headers.Add("User-ID", App.AccountSession.Account.Id.ToString());
+		request.Headers.Add("SessionToken", App.AccountSession.SessionToken.Token);
+        HttpResponseMessage response;
+        try
+		{
+			Log.Debug("AUTO LOGIN", "Before Request");
+			Task<HttpResponseMessage> responseTask = httpClient.SendAsync(request);
+			await Task.Delay(1000);
+			Log.Debug("AUTO LOGIN", $"Actual request: {responseTask.Status}");
+			response = await responseTask;
+            Log.Debug("AUTO LOGIN", "After Request");
+        }
+		catch (Exception ex)
+		{
+			Log.Debug(ex.Message);
+			Log.Debug(ex.StackTrace ?? "Error Auto Logging In");
+			return false;
+		}
+		if (response.StatusCode == HttpStatusCode.OK)
+		{
+			
+			Log.Debug("AUTO LOGIN", "Status OK");
+
+			accountSessionJson = await response.Content.ReadAsStringAsync();
+			Log.Debug("AUTO LOGIN", $"Json: {accountSessionJson}");
+            await SecureStorage.Default.SetAsync("AccountSession", accountSessionJson);
+			App.AccountSession = JsonSerializer.Deserialize<AccountSession>(accountSessionJson, Json.Options);
+
+			App.Current.MainPage = new NavigationPage(new MainPage());
+
+            RideRequestService.StartService();
+
+			return true;
+        }
+        Log.Debug("AUTO LOGIN", "Status NOT OK");
+        Log.Debug("AUTO LOGIN", await response.Content.ReadAsStringAsync());
+        return false;
+	}
+
+
+
+
+
 	private async Task CheckVersion()
 	{
 		await _CheckVersion(0);
 	}
+
+
+
+
+
 	private async Task _CheckVersion(int retryCount)
 	{
 
@@ -107,36 +201,29 @@ public partial class LoginPage : ContentPage
 		Log.Debug(uri.OriginalString);
 		Log.Debug(uri.AbsolutePath);
 		Log.Debug(uri.AbsoluteUri);
-		Log.Debug(JsonSerializer.Serialize<HttpClient>(_httpClient));
+		Log.Debug(JsonSerializer.Serialize<HttpClient>(httpClient));
         try
 		{
-			_httpClient = new HttpClient();
-            //response= await _httpClient.GetAsync(uri).ConfigureAwait(false);
-			response = await _httpClient.GetAsync(uri).ConfigureAwait(false);
-			
-
-			Thread.Sleep(1000);
-			//Log.Debug(task.IsCompleted.ToString());
-			//Log.Debug(task.IsFaulted.ToString());
-			////Log.Debug("AsyncState", task.AsyncState);
-			//Log.Debug("Status", task.Status.ToString());
-
-			//response = await task;
+			Task<HttpResponseMessage> responseTask = httpClient.GetAsync(uri);
+			//response = await httpClient.GetAsync(uri);
+			await Task.Delay(1000);
+			Log.Debug("CHECK VERSION", $"Actual Status: {responseTask.Status}");
+			response = await responseTask;
         }
 		catch (Exception ex)
 		{
 			Log.Debug("ERRROR", ex.Message);
 			return;
 		}
-		
-		Log.Debug("Received Response");
+
 		HttpContent content = response.Content;
 		HttpStatusCode code = response.StatusCode;
 		if (code != HttpStatusCode.OK)
 		{
-			if (retryCount < 10)
+            await Task.Delay(1000);
+            if (retryCount < 10)
 			{
-                _CheckVersion(++retryCount);
+                await _CheckVersion(++retryCount);
 				return;
             }
 			_ = DisplayAlert("Server Unavailable", "The server is unavailable at this time", "Ok");
@@ -151,7 +238,6 @@ public partial class LoginPage : ContentPage
 			_ = DisplayAlert("Update App", "This app version is no longer supported. Please update now at https://www.trevorsrides.com/Download", "Ok");
 			return;
 		}
-        ContactedServer = true;
         IsSupported = true;
 		if (thisVersion.Major < versionControl.LatestVersion.Major)
 		{

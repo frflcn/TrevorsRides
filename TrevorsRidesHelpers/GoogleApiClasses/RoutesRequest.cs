@@ -1,10 +1,10 @@
-﻿#if (ANDROID || IOS)
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Maui.GoogleMaps;
+//using Maui.GoogleMaps;
 
 namespace TrevorsRidesHelpers.GoogleApiClasses
 {
@@ -45,10 +45,10 @@ namespace TrevorsRidesHelpers.GoogleApiClasses
         public double longitude { get; set; }
         public double latitude { get; set; }
 
-        public Maui.GoogleMaps.Position ToPosition()
-        {
-            return new Maui.GoogleMaps.Position(latitude, longitude);
-        }
+        //public Maui.GoogleMaps.Position ToPosition()
+        //{
+        //    return new Maui.GoogleMaps.Position(latitude, longitude);
+        //}
     }
     public class RouteModifiers
     {
@@ -103,4 +103,3 @@ namespace TrevorsRidesHelpers.GoogleApiClasses
     }
     
 }
-#endif

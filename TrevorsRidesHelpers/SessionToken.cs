@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using BC = BCrypt.Net.BCrypt;
 
@@ -45,21 +46,25 @@ namespace TrevorsRidesHelpers
             return new SessionToken()
             {
                 Token = values[0],
-                Expiry = DateTime.Parse(values[1]),
-                Issued = DateTime.Parse(values[2]),
+                Issued = DateTime.Parse(values[1]),
+                Expiry = DateTime.Parse(values[2]),
                 _IsExpired = bool.Parse(values[3])
             };
 
         }
-        public SessionToken()
+
+        [JsonConstructor]
+        private SessionToken(string token, DateTime expiry, DateTime issued, bool isExpired)
         {
-
+            Token = token;
+            Expiry = expiry;
+            Issued = issued;
+            _IsExpired = isExpired;
         }
-
 
         public SessionToken(int minutesAlive = 60)
         {
-
+            Token = "";
             for (int i = 0; i < 32; i++)
             {
                 Token += CharacterArray[RandomNumberGenerator.GetInt32(0, CharacterArray.Length - 1)];
@@ -128,10 +133,10 @@ namespace TrevorsRidesHelpers
         {
             return this.MemberwiseClone();
         }
-        public static string Hash(string password)
+        public static string Hash(string unhashedToken)
         {
             UnicodeEncoding unicodeEncoding = new UnicodeEncoding();
-            byte[] bytes = unicodeEncoding.GetBytes(password);
+            byte[] bytes = unicodeEncoding.GetBytes(unhashedToken);
             byte[] hash;
             using (MemoryStream memoryStream = new MemoryStream())
             {
@@ -155,8 +160,8 @@ namespace TrevorsRidesHelpers
             return new RideSessionToken()
             {
                 Token = values[0],
-                Expiry = DateTime.Parse(values[1]),
-                Issued = DateTime.Parse(values[2]),
+                Issued = DateTime.Parse(values[1]),
+                Expiry = DateTime.Parse(values[2]),   
                 _IsExpired = bool.Parse(values[3])
             };
 

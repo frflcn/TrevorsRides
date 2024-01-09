@@ -12,10 +12,34 @@ namespace TrevorsRidesServer.Controllers
     [ApiController]
     public class LoginController : ControllerBase
     {
+        [FromHeader(Name = "Email")]
+        public string? email { get; set; }
+        [FromHeader(Name = "User-ID")]
+        public Guid? userId { get; set; }
+        [FromHeader(Name = "Password")]
+        public string? password { get; set; }
+        [FromHeader(Name = "SessionToken")]
+        public string? sessionToken { get; set; }
+        
+        
         
         [HttpGet]
-        public async void OnGet([FromHeader(Name="Email")] string email, [FromHeader(Name="Password")] string password)
+        public async void OnGet()
         {
+            if (email == null && userId == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Email or User-ID must be set");
+                return;
+            }
+            if (password == null && sessionToken == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Password or SessionToken must be set");
+                return;
+            }
+
+
             using (RidesModel context = new RidesModel())
             {
                 JsonSerializerOptions jsonOptions = new JsonSerializerOptions
@@ -25,33 +49,60 @@ namespace TrevorsRidesServer.Controllers
                     new Json.PhoneNumberJsonConverter()
                 }
                 };
+
                 AccountEntry account;
+
+
                 try
                 {
-                    account = context.Accounts.Single(e => e.Email == email);
+                    if (userId != null)
+                    {
+                        account = context.Accounts.ToList().Single(e => e.Id == userId);
+                    }
+                    else
+                    {
+                        account = context.Accounts.ToList().Single(e => e.Email == email);
+                    }
+                    
                 }
                 catch(InvalidOperationException)
                 {
                     Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Email or password is incorrect");
+                    await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Invalid Credentials");
                     return;
                 }
+
+
                 account.RetryCount.TryReset();
                 if (account.RetryCount.Retry())
                 {
-                    
-                    if (account.VerifyPassword(password))
+                    if (password != null)
                     {
-                        AccountSession accountSession = account.ReturnAccountSession();
-                        
-                        await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, JsonSerializer.Serialize<AccountSession>(accountSession, jsonOptions));
+                        if (account.VerifyPassword(password))
+                        {
+                            AccountSession accountSession = account.ReturnAccountSession();
+                            await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, JsonSerializer.Serialize<AccountSession>(accountSession, jsonOptions));
+                        }
+                        else
+                        {
+                            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                            await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Invalid Credentials");
+                        }
                     }
                     else
                     {
-                        Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                        await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Email or password is incorrect");
-
+                        if (account.VerifySessionToken(sessionToken!))
+                        {
+                            AccountSession accountSession = account.ReturnAccountSession();
+                            await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, JsonSerializer.Serialize<AccountSession>(accountSession, jsonOptions));
+                        }
+                        else
+                        {
+                            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                            await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Invalid Credentials");
+                        }
                     }
+                    
                 }
                 else
                 {
@@ -59,10 +110,11 @@ namespace TrevorsRidesServer.Controllers
                     await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, $"Too many attempts, please wait {(account.RetryCount.NextReset-DateTime.UtcNow).TotalMinutes} minutes before attempting again");
                 }
 
+
                 context.Accounts.Update(account);
                 context.SaveChanges();
                 return;
-            }
+            }        
         }
     }
 }

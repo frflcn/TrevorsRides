@@ -11,8 +11,16 @@ using TrevorsRidesHelpers;
 namespace TrevorsRidesServer.Controllers
 {
     [Route("wss/[controller]")]
-    public class TrevorController : ControllerBase
+    public class DriverController : ControllerBase
     {
+        [FromHeader(Name="User-ID")]
+        public Guid? userId { get; set; }
+        [FromHeader(Name="SessionToken")]
+        public string? sessionToken { get; set; }
+
+        WebSocket webSocket;
+        SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
+        RideMatchingService _rideMatchingService;
         static string testPath = "C://Users/tmsta/AppData/TrevorsRides/trevors_status.json";
         static string trevorStatusFilePath = "/var/data/trevorsrides/trevors_status.json";
         static string riderStatusFilePath = "/var/data/trevorsrides/riders_status.json";
@@ -21,15 +29,20 @@ namespace TrevorsRidesServer.Controllers
 
         System.Timers.Timer timer = new();
 
-        private readonly ILogger<TrevorController> _logger;
-
-        public TrevorController(ILogger<TrevorController> logger)
+        private readonly ILogger<DriverController> _logger;
+        ~DriverController() 
+        {
+            if (webSocket != null)
+            {
+                webSocket.Dispose();
+            }
+        }
+        public DriverController(ILogger<DriverController> logger, RideMatchingService rideMatchingService)
         {
             _logger = logger;
+            _rideMatchingService = rideMatchingService;
         }
         [HttpGet]
-        //[HttpGet(Name = "GetTrevor")]
-        //[Route("wss/[controller]")]
         public async Task Get()
         {
             _logger.LogInformation("Request To Open: /Trevor");
@@ -40,10 +53,9 @@ namespace TrevorsRidesServer.Controllers
 
             if (HttpContext.WebSockets.IsWebSocketRequest)
             {
-                _logger.LogInformation("Its a WebSocket");
-                using var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-
-                await Connect(webSocket);
+                webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+                _rideMatchingService.TryRegisterDriver(userId.Value, new Driver(Send, new SpaceTime(new Position(43, 34), DateTime.UtcNow)));
+                await Connect();
                 
             }
             else
@@ -53,28 +65,27 @@ namespace TrevorsRidesServer.Controllers
                 
             }
             string json = System.IO.File.ReadAllText(riderStatusFilePath);
-            JsonSerializer.Deserialize<TrevorStatus>(json);
+            JsonSerializer.Deserialize<DriverStatus>(json);
         }
-        private async Task Connect(WebSocket webSocket)
+        private async Task Connect()
         {
-            timer.Elapsed += (s, e) => Send(webSocket);
+            timer.Elapsed += (s, e) => Send();
             timer.Interval = 1000;
             timer.Start();
             WebSocketReceiveResult receiveTask;
             do
             {
                 string json = "";
-                while (true)
-                {
-                    var buffer = new byte[1024 * 4];
+
+                var buffer = new byte[1024 * 4];
+
                     receiveTask = await webSocket.ReceiveAsync(
                         new ArraySegment<byte>(buffer), CancellationToken.None);
-                    json += Encoding.ASCII.GetString(buffer, 0, receiveTask.Count);
-                    if (receiveTask.EndOfMessage)
-                    {
-                        break;
-                    }
-                }
+
+
+                json += Encoding.ASCII.GetString(buffer, 0, receiveTask.Count);
+                WebsocketMessage websocketMessage = JsonSerializer.Deserialize<WebsocketMessage>(json, Json.Options);
+ 
                 
 
                 bool textWritten = false;
@@ -88,7 +99,8 @@ namespace TrevorsRidesServer.Controllers
                     catch (Exception ex)
                     {
                         Console.WriteLine($"{DateTime.Now}: Error writing to trevor_status.json: {ex.Message}");
-                        Thread.Sleep(rand.Next(100));
+                        await Task.Delay(rand.Next(100));
+ 
                     }
 
                 }while (!textWritten);
@@ -96,14 +108,24 @@ namespace TrevorsRidesServer.Controllers
             await webSocket.CloseAsync(receiveTask.CloseStatus.Value, receiveTask.CloseStatusDescription, CancellationToken.None);
             
         }
-        private void Send(WebSocket webSocket)
+        private async void Send()
         {
             if (System.IO.File.Exists(riderStatusFilePath))
             {
                 try
                 {
                     byte[] bytes = System.IO.File.ReadAllBytes(riderStatusFilePath);
-                    var sendTask = webSocket.SendAsync(bytes, WebSocketMessageType.Text, true, CancellationToken.None);
+
+                    await semaphore.WaitAsync();
+                    try
+                    {
+                        await webSocket.SendAsync(bytes, WebSocketMessageType.Text, false, CancellationToken.None);
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                    
                     timer.Interval = 1000 + rand.Next(100);
                 }
                 catch(Exception ex)
@@ -116,6 +138,30 @@ namespace TrevorsRidesServer.Controllers
                 }
             }
             
+        }
+        [NonAction]
+        public async Task Send(string message)
+        {
+            try
+            {
+                byte[] bytes = Encoding.ASCII.GetBytes(message);
+
+                await semaphore.WaitAsync();
+                try
+                {
+                    await webSocket.SendAsync(bytes, WebSocketMessageType.Text, false, CancellationToken.None);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+
+                timer.Interval = 1000 + rand.Next(100);
+            }
+            catch(Exception ex) 
+            { 
+                Console.WriteLine(ex.Message); 
+            }
         }
         [NonAction]
         public void Log()
