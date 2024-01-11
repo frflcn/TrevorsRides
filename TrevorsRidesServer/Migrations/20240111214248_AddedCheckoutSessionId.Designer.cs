@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TrevorsRidesServer.Models;
 
@@ -10,9 +11,11 @@ using TrevorsRidesServer.Models;
 namespace TrevorsRidesServer.Migrations
 {
     [DbContext(typeof(RidesModel))]
-    partial class RidesModelModelSnapshot : ModelSnapshot
+    [Migration("20240111214248_AddedCheckoutSessionId")]
+    partial class AddedCheckoutSessionId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.1");

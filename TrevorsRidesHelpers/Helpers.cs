@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TrevorsRidesHelpers.GoogleApiClasses;
+using TrevorsRidesHelpers.Ride;
 
 namespace TrevorsRidesHelpers
 {
@@ -13,7 +14,7 @@ namespace TrevorsRidesHelpers
         public static string Domain { get; set; }
         public static int Port { get; set; }
         public static bool IsBeta { get; set; }
-
+        
         static Helpers() 
         { 
             IsTest = false;
@@ -51,6 +52,7 @@ namespace TrevorsRidesHelpers
             double d = R * c; // in metres
 
             return d;
+            
         }
     }
 }

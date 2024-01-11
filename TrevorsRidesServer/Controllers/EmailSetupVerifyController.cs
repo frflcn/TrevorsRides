@@ -18,7 +18,7 @@ using TrevorsRidesServer.Models;
 
 namespace TrevorsRidesServer.Controllers
 {
-    [Route("api/Setup")]
+
     [ApiController]
     public class EmailSetupVerifyController : ControllerBase
     {
@@ -28,8 +28,8 @@ namespace TrevorsRidesServer.Controllers
             _logger = logger;
         }
         [HttpPost]
-        [Route("VerifyEmail")]
-        public async Task PostVerifyEmail([FromHeader(Name = "Email")] string email, [FromHeader(Name = "FirstName")] string firstName, [FromHeader(Name = "LastName")] string lastName, [FromHeader(Name = "Guid")] Guid guid)
+        [Route("api/Rider/Setup/VerifyEmail")]
+        public async Task PostVerifyRiderEmail([FromHeader(Name = "Email")] string email, [FromHeader(Name = "FirstName")] string firstName, [FromHeader(Name = "LastName")] string lastName, [FromHeader(Name = "User-ID")] Guid guid)
         {
 
             _logger.LogInformation("Post eMail setup verify called");
@@ -38,30 +38,30 @@ namespace TrevorsRidesServer.Controllers
             
             using (RidesModel context = new RidesModel())
             {
-                if (context.Accounts.ToList().Any(e => e.Email == email))
+                if (context.RiderAccounts.ToList().Any(e => e.Email == email))
                 {
                     await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "An account with this email already exists");
                     return;
                 }
                 else
                 {
-                    AccountSetupEntry verifyEntry = new AccountSetupEntry()
+                    RiderAccountSetupEntry verifyEntry = new RiderAccountSetupEntry()
                     {
                         Email = email,
                         EmailVerificationCode = new VerificationCode(),
                         FirstName = firstName,
                         LastName = lastName,
-                        Identifier = guid
+                        Id = guid
 
                     };
-                    if (context.AccountSetups.ToList().Any(e => e.Identifier == guid))
+                    if (context.RiderAccountSetups.ToList().Any(e => e.Id == guid))
                     {
-                        verifyEntry = context.AccountSetups.ToList().Single(e => e.Identifier == guid);
+                        verifyEntry = context.RiderAccountSetups.ToList().Single(e => e.Id == guid);
 
                      
                         if (verifyEntry.EmailVerificationCode.Issued.AddMinutes(1) > DateTimeOffset.UtcNow)
                         {
-                            string retryTime = context.AccountSetups.Single(e => e.Identifier == guid).EmailVerificationCode.Issued.AddMinutes(1).ToString();
+                            string retryTime = context.RiderAccountSetups.Single(e => e.Id == guid).EmailVerificationCode.Issued.AddMinutes(1).ToString();
                             await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, $"Please wait until: {retryTime} before asking for another email verification code.");
                             return;
                         }
@@ -72,13 +72,13 @@ namespace TrevorsRidesServer.Controllers
                             verifyEntry.LastName = lastName;
                             verifyEntry.EmailVerificationCode = new VerificationCode();
 
-                            context.AccountSetups.Update(verifyEntry);
+                            context.RiderAccountSetups.Update(verifyEntry);
                         }
                         
                     }
                     else
                     {
-                        context.AccountSetups.Add(verifyEntry);
+                        context.RiderAccountSetups.Add(verifyEntry);
                     }
                     
                     context.SaveChanges();
@@ -96,24 +96,126 @@ namespace TrevorsRidesServer.Controllers
 
 
         [HttpGet]
-        [Route("VerifyEmail")]
-        public async Task GetVerifyEmail([FromHeader(Name = "Email")] string email, [FromHeader(Name = "VerificationCode")] int verificationCode, [FromHeader(Name = "Identifier")] Guid identifier)
+        [Route("api/Rider/Setup/VerifyEmail")]
+        public async Task GetVerifyRiderEmail([FromHeader(Name = "Email")] string email, [FromHeader(Name = "VerificationCode")] int verificationCode, [FromHeader(Name = "User-ID")] Guid identifier)
+        {
+            _logger.LogInformation($"Called: Email: {email} Code: {verificationCode} Id: {identifier}");
+            using (RidesModel context = new RidesModel())
+            {
+                if (context.RiderAccountSetups.ToList().Any(e => e.Email == email && e.EmailVerificationCode.Code == verificationCode && e.EmailVerificationCode.Expiry > DateTimeOffset.UtcNow && e.Id == identifier))
+                {
+                    //context.RiderAccountSetups.ToList().Single(e => e.Email == email && e.EmailVerificationCode.Code == verificationCode).EmailVerificationCode.Verify(verificationCode);
+                    RiderAccountSetupEntry accountSetup = context.RiderAccountSetups.ToList().Single(e => e.Email == email && e.EmailVerificationCode.Code == verificationCode);
+                    accountSetup.EmailVerificationCode.Verify(verificationCode);
+
+                    context.RiderAccountSetups.Update(accountSetup);
+                    context.SaveChanges();
+                    await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Success");
+                    _logger.LogInformation("Success");
+
+                    return;
+                }
+                else if (context.RiderAccountSetups.ToList().Any(e => e.Id == identifier && e.EmailVerificationCode.Code == verificationCode))
+                {
+                    await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Verification Code has expired, please request a new one");
+                    _logger.LogInformation("Expired");
+                    return;
+                }
+                else
+                {
+                    await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Invalid Verification Code");
+                    _logger.LogInformation("Invalid");
+                    return;
+                }
+            }
+        }
+        [HttpPost]
+        [Route("api/Driver/Setup/VerifyEmail")]
+        public async Task PostVerifyDriverEmail([FromHeader(Name = "Email")] string email, [FromHeader(Name = "FirstName")] string firstName, [FromHeader(Name = "LastName")] string lastName, [FromHeader(Name = "User-ID")] Guid guid)
+        {
+
+            _logger.LogInformation("Post eMail setup verify called");
+
+
+
+            using (RidesModel context = new RidesModel())
+            {
+                if (context.DriverAccounts.ToList().Any(e => e.Email == email))
+                {
+                    await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "An account with this email already exists");
+                    return;
+                }
+                else
+                {
+                    DriverAccountSetupEntry verifyEntry = new DriverAccountSetupEntry()
+                    {
+                        Email = email,
+                        EmailVerificationCode = new VerificationCode(),
+                        FirstName = firstName,
+                        LastName = lastName,
+                        Id = guid
+
+                    };
+                    if (context.DriverAccountSetups.ToList().Any(e => e.Id == guid))
+                    {
+                        verifyEntry = context.DriverAccountSetups.ToList().Single(e => e.Id == guid);
+
+
+                        if (verifyEntry.EmailVerificationCode.Issued.AddMinutes(1) > DateTimeOffset.UtcNow)
+                        {
+                            string retryTime = context.DriverAccountSetups.Single(e => e.Id == guid).EmailVerificationCode.Issued.AddMinutes(1).ToString();
+                            await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, $"Please wait until: {retryTime} before asking for another email verification code.");
+                            return;
+                        }
+                        else
+                        {
+                            verifyEntry.Email = email;
+                            verifyEntry.FirstName = firstName;
+                            verifyEntry.LastName = lastName;
+                            verifyEntry.EmailVerificationCode = new VerificationCode();
+
+                            context.DriverAccountSetups.Update(verifyEntry);
+                        }
+
+                    }
+                    else
+                    {
+                        context.DriverAccountSetups.Add(verifyEntry);
+                    }
+
+                    context.SaveChanges();
+                    SendEmail(email, firstName, lastName, verifyEntry.EmailVerificationCode.Code);
+                    await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Email Sent");
+                    return;
+
+                }
+            }
+
+        }
+
+
+
+
+
+        [HttpGet]
+        [Route("api/Driver/Setup/VerifyEmail")]
+        public async Task GetVerifyDriverEmail([FromHeader(Name = "Email")] string email, [FromHeader(Name = "VerificationCode")] int verificationCode, [FromHeader(Name = "User-ID")] Guid identifier)
         {
             using (RidesModel context = new RidesModel())
             {
-                if (context.AccountSetups.ToList().Any(e => e.Email == email && e.EmailVerificationCode.Code == verificationCode && e.EmailVerificationCode.Expiry > DateTimeOffset.UtcNow && e.Identifier == identifier))
+                if (context.DriverAccountSetups.ToList().Any(e => e.Email == email && e.EmailVerificationCode.Code == verificationCode && e.EmailVerificationCode.Expiry > DateTimeOffset.UtcNow && e.Id == identifier))
                 {
-                    //context.AccountSetups.ToList().Single(e => e.Email == email && e.EmailVerificationCode.Code == verificationCode).EmailVerificationCode.Verify(verificationCode);
-                    AccountSetupEntry accountSetup = context.AccountSetups.ToList().Single(e => e.Email == email && e.EmailVerificationCode.Code == verificationCode);
+                    //context.RiderAccountSetups.ToList().Single(e => e.Email == email && e.EmailVerificationCode.Code == verificationCode).EmailVerificationCode.Verify(verificationCode);
+                    DriverAccountSetupEntry accountSetup = context.DriverAccountSetups.ToList().Single(e => e.Email == email && e.EmailVerificationCode.Code == verificationCode);
                     accountSetup.EmailVerificationCode.Verify(verificationCode);
 
-                    context.AccountSetups.Update(accountSetup);
+                    context.DriverAccountSetups.Update(accountSetup);
                     context.SaveChanges();
                     await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Success");
 
                     return;
                 }
-                else if (context.AccountSetups.ToList().Any(e => e.Identifier == identifier && e.EmailVerificationCode.Code == verificationCode))
+                else if (context.DriverAccountSetups.ToList().Any(e => e.Id == identifier && e.EmailVerificationCode.Code == verificationCode))
                 {
                     await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Verification Code has expired, please request a new one");
                     return;

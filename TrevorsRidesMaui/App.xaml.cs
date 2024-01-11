@@ -10,6 +10,7 @@ using TrevorsRidesHelpers;
 using System.Windows.Input;
 using Microsoft.Maui.Storage;
 using TrevorsRidesMaui.BackgroundTasks;
+using TrevorsRidesHelpers.Ride;
 
 
 namespace TrevorsRidesMaui

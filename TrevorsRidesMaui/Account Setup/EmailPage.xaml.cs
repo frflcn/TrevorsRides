@@ -29,12 +29,12 @@ public partial class EmailPage : ContentPage
 	public static async void SendEmail()
 	{
         HttpClient client = App.HttpClient;
-        Uri uri = new Uri($"{Helpers.Domain}/api/Setup/VerifyEmail");
+        Uri uri = new Uri($"{Helpers.Domain}/api/Rider/Setup/VerifyEmail");
 		ByteArrayContent content = new ByteArrayContent(new byte[0]);
 		content.Headers.Add("Email", Account.Email);
 		content.Headers.Add("FirstName", Account.FirstName);
 		content.Headers.Add("LastName", Account.LastName);
-		content.Headers.Add("Guid", Account.Identifier.ToString());
+		content.Headers.Add("User-ID", Account.Identifier.ToString());
 		HttpResponseMessage response = await client.PostAsync(uri, content);
 		Log.Debug(response.StatusCode.ToString());
 		Log.Debug(await response.Content.ReadAsStringAsync());

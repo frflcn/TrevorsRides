@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Stripe;
+using Stripe.Checkout;
 using TrevorsRidesHelpers;
 
 namespace TrevorsRidesServer.Controllers
@@ -10,8 +11,16 @@ namespace TrevorsRidesServer.Controllers
     [ApiController]
     public class StripeWebhookController : ControllerBase
     {
-        [HttpGet]
-        public async Task<IActionResult> Get()
+        ILogger<StripeWebhookController> _logger;
+        RideMatchingService _rideMatchingService;
+        public StripeWebhookController(ILogger<StripeWebhookController> logger, RideMatchingService rideMatchingService)
+        {
+            _logger = logger;
+            _rideMatchingService = rideMatchingService;
+
+        }
+        [HttpPost]
+        public async Task<IActionResult> Post()
         {
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
             
@@ -35,11 +44,17 @@ namespace TrevorsRidesServer.Controllers
                 if (stripeEvent.Type == Events.PaymentIntentSucceeded)
                 {
                     var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
-                    Console.WriteLine("A successful payment for {0} was made.", paymentIntent.Amount);
+                    Console.WriteLine("A successful payment for ${0} was made.", Math.Round((double)paymentIntent.Amount / 100, 2));
                     // Then define and call a method to handle the successful payment intent.
                     // handlePaymentIntentSucceeded(paymentIntent);
+                    //_rideMatchingService(rideId);
+                    //Console.
                 }
-
+                else if (stripeEvent.Type == Events.CheckoutSessionCompleted)
+                {
+                    Session session = stripeEvent.Data.Object as Session;
+                    await _rideMatchingService.TripPaid(Guid.Parse(session.Metadata["RiderId"]));
+                }
                 else
                 {
                     Console.WriteLine("Unhandled event type: {0}", stripeEvent.Type);

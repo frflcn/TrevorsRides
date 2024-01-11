@@ -50,18 +50,18 @@ namespace TrevorsRidesServer.Controllers
                 }
                 };
 
-                AccountEntry account;
+                RiderAccountEntry account;
 
 
                 try
                 {
                     if (userId != null)
                     {
-                        account = context.Accounts.ToList().Single(e => e.Id == userId);
+                        account = context.RiderAccounts.ToList().Single(e => e.Id == userId);
                     }
                     else
                     {
-                        account = context.Accounts.ToList().Single(e => e.Email == email);
+                        account = context.RiderAccounts.ToList().Single(e => e.Email == email);
                     }
                     
                 }
@@ -111,7 +111,7 @@ namespace TrevorsRidesServer.Controllers
                 }
 
 
-                context.Accounts.Update(account);
+                context.RiderAccounts.Update(account);
                 context.SaveChanges();
                 return;
             }        

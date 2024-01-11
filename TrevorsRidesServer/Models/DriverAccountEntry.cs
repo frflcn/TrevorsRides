@@ -7,7 +7,9 @@ using BCrypt.Net;
 
 namespace TrevorsRidesServer.Models
 {
-    public class AccountEntry : IAccount
+
+
+    public class DriverAccountEntry : IAccount
     {
         [Key]
         public Guid Id { get; set; }
@@ -27,7 +29,7 @@ namespace TrevorsRidesServer.Models
 
 
         /// <summary>
-        /// Adds a HashedSessionToken to the AccountEntry's Session Tokens then returns an AccountSession with the unhashed Token
+        /// Adds a HashedSessionToken to the RiderAccountEntry's Session Tokens then returns an AccountSession with the unhashed Token
         /// </summary>
         /// <returns>An Account Session</returns>
         public AccountSession ReturnAccountSession()
@@ -100,4 +102,5 @@ namespace TrevorsRidesServer.Models
         }
 
     }
+
 }

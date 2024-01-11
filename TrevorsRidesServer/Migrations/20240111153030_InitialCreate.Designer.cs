@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TrevorsRidesServer.Models;
 
@@ -10,14 +11,16 @@ using TrevorsRidesServer.Models;
 namespace TrevorsRidesServer.Migrations
 {
     [DbContext(typeof(RidesModel))]
-    partial class RidesModelModelSnapshot : ModelSnapshot
+    [Migration("20240111153030_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.1");
 
-            modelBuilder.Entity("TrevorsRidesHelpers.Ride.Ride", b =>
+            modelBuilder.Entity("TrevorsRidesHelpers.Ride", b =>
                 {
                     b.Property<Guid>("RideId")
                         .ValueGeneratedOnAdd()
@@ -72,72 +75,7 @@ namespace TrevorsRidesServer.Migrations
 
                     b.HasKey("RideId");
 
-                    b.ToTable("CompletedRides");
-                });
-
-            modelBuilder.Entity("TrevorsRidesHelpers.Ride.RideInProgress", b =>
-                {
-                    b.Property<Guid>("RideId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CancellationReason")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CheckoutSessionId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("DriverID")
-                        .HasColumnType("TEXT");
-
-                    b.Property<byte[]>("DriversHistory")
-                        .IsRequired()
-                        .HasColumnType("BLOB");
-
-                    b.Property<byte[]>("DriversHistoryFinalized")
-                        .HasColumnType("BLOB");
-
-                    b.Property<string>("DropOff")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Pickup")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<byte[]>("RideEvents")
-                        .IsRequired()
-                        .HasColumnType("BLOB");
-
-                    b.Property<string>("RidePlanUpdates")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("RiderID")
-                        .HasColumnType("TEXT");
-
-                    b.Property<byte[]>("RidersHistory")
-                        .IsRequired()
-                        .HasColumnType("BLOB");
-
-                    b.Property<byte[]>("RidersHistoryFinalized")
-                        .HasColumnType("BLOB");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Stops")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("RideId");
-
-                    b.HasIndex("RiderID")
-                        .IsUnique();
-
-                    b.ToTable("RidesInProgress");
+                    b.ToTable("Rides");
                 });
 
             modelBuilder.Entity("TrevorsRidesServer.Models.DriverAccountEntry", b =>

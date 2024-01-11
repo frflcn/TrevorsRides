@@ -4,10 +4,12 @@ using TrevorsRidesHelpers;
 
 namespace TrevorsRidesServer.Models
 {
-    public class AccountSetupEntry
+
+
+    public class DriverAccountSetupEntry
     {
         [Key]
-        public Guid Identifier { get; set; }
+        public Guid Id { get; set; }
         [EmailAddress]
         public string Email { get; set; }
         public string FirstName { get; set; }

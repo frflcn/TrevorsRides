@@ -3,7 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Org.BouncyCastle.Utilities.Zlib;
 using PhoneNumbers;
+using System.Reflection.Metadata;
+using System.Text.Json;
 using TrevorsRidesHelpers;
+using TrevorsRidesHelpers.Ride;
 
 namespace TrevorsRidesServer.Models
 {
@@ -11,9 +14,14 @@ namespace TrevorsRidesServer.Models
     {
         public static PhoneNumberUtil PhoneNumberUtil { get; set; }
 
-        public DbSet<AccountSetupEntry> AccountSetups { get; set; }
-        public DbSet<AccountEntry> Accounts { get; set; }
-        //public DbSet<AccountEntry> DriverAccounts { get; set; }
+
+        public DbSet<DriverAccountSetupEntry> DriverAccountSetups { get; set; }
+        public DbSet<DriverAccountEntry> DriverAccounts { get; set; }
+        public DbSet<RiderAccountSetupEntry> RiderAccountSetups { get; set; }
+        public DbSet<RiderAccountEntry> RiderAccounts { get; set; }
+        public DbSet<Ride> CompletedRides { get; set; }
+        public DbSet<RideInProgress> RidesInProgress { get; set; }
+        //public DbSet<RiderAccountEntry> DriverAccounts { get; set; }
 
         public string DbPath { get; }
 
@@ -44,6 +52,13 @@ namespace TrevorsRidesServer.Models
 
             
         }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder
+                .Entity<RideInProgress>()
+                .HasIndex(e => e.RiderID)
+                .IsUnique();
+        }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseSqlite($"Data Source={DbPath}");
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
@@ -66,8 +81,32 @@ namespace TrevorsRidesServer.Models
             configurationBuilder
                 .Properties<List<HashedSessionToken>>()
                 .HaveConversion<HashedSessionTokenListConverter>();
-            //configurationBuilder
-            //    .DefaultTypeMapping<HashedSessionToken>();
+
+            configurationBuilder
+                .Properties<Pickup>()
+                .HaveConversion<PickupConverter>();
+            configurationBuilder
+                .Properties<Stop[]>()
+                .HaveConversion<StopArrayConverter>();
+            configurationBuilder
+                .Properties<DropOff>()
+                .HaveConversion<DropOffConverter>();
+            configurationBuilder
+                .Properties<SpaceTimeContinuum>()
+                .HaveConversion<SpaceTimeContinuumConverter>();
+            configurationBuilder
+                .Properties<SpaceTimeUpdateContinuum>()
+                .HaveConversion<SpaceTimeUpdateContinuumConverter>();
+            configurationBuilder
+                .Properties<RideEventUpdateContinuum>()
+                .HaveConversion<RideEventUpdateContinuumConverter>();
+            configurationBuilder
+                .Properties<List<RidePlanUpdate>>()
+                .HaveConversion<RidePlanUpdateListConverter>();
+            configurationBuilder
+                .Properties<RideEventType>()
+                .HaveConversion<string>();
+
         }
 
         public class VerificationCodeConverter : ValueConverter <VerificationCode, string>
@@ -126,6 +165,62 @@ namespace TrevorsRidesServer.Models
                       v => StringToHashedSessionTokenList(v))
             { }
         }
+        public class SpaceTimeContinuumConverter : ValueConverter<SpaceTimeContinuum, byte[]>
+        {
+            public SpaceTimeContinuumConverter()
+                : base(
+                      v => v.ToBlob(),
+                      v => SpaceTimeContinuum.FromBlob(v))
+            { }
+        }
+        public class SpaceTimeUpdateContinuumConverter : ValueConverter<SpaceTimeUpdateContinuum, byte[]>
+        {
+            public SpaceTimeUpdateContinuumConverter()
+                : base(
+                      v => v.ToBlob(),
+                      v => SpaceTimeUpdateContinuum.FromBlob(v))
+            { }
+        }
+        public class RideEventUpdateContinuumConverter : ValueConverter<RideEventUpdateContinuum, byte[]>
+        {
+            public RideEventUpdateContinuumConverter()
+                : base(
+                      v => v.ToBlob(),
+                      v => RideEventUpdateContinuum.FromBlob(v))
+            { }
+        }
+        public class PickupConverter : ValueConverter<Pickup, string>
+        {
+            public PickupConverter()
+                : base(
+                      v => JsonSerializer.Serialize(v, Json.Options),
+                      v => JsonSerializer.Deserialize<Pickup>(v, Json.Options))
+            { }
+        }
+        public class StopArrayConverter : ValueConverter<Stop[], string>
+        {
+            public StopArrayConverter()
+                : base(
+                      v => JsonSerializer.Serialize(v, Json.Options),
+                      v => JsonSerializer.Deserialize<Stop[]>(v, Json.Options))
+            { }
+        }
+        public class DropOffConverter : ValueConverter<DropOff, string>
+        {
+            public DropOffConverter()
+                : base(
+                      v => JsonSerializer.Serialize(v, Json.Options),
+                      v => JsonSerializer.Deserialize<DropOff>(v, Json.Options))
+            { }
+        }
+        public class RidePlanUpdateListConverter : ValueConverter<List<RidePlanUpdate>, string>
+        {
+            public RidePlanUpdateListConverter()
+                : base(
+                      v => JsonSerializer.Serialize(v, Json.Options),
+                      v => JsonSerializer.Deserialize<List<RidePlanUpdate>>(v, Json.Options))
+            { }
+        }
         public static string HashedSessionTokenListToString(List<HashedSessionToken> list)
         {
 
@@ -133,7 +228,7 @@ namespace TrevorsRidesServer.Models
 
             foreach (HashedSessionToken token in list)
             {
-                result += $"{token.ToString()} | ";
+                result += $"{token} | ";
             }
             return result.Substring(0, result.Length - 3);
         }
@@ -156,7 +251,7 @@ namespace TrevorsRidesServer.Models
         {
             using(var context = new RidesModel())
             {
-                context.Database.GetDbConnection().CreateCommand().ExecuteReader().
+                context.Database.GetDbConnection().CreateCommand().ExecuteReader();
             }
             MemoryStream inputStream = new MemoryStream();
             var builder = new SqliteConnectionStringBuilder();
@@ -172,8 +267,10 @@ namespace TrevorsRidesServer.Models
 
                 SELECT last_insert_rowid();
             ";
+            
             command.Parameters.AddWithValue("$length", inputStream.Length);
             var rowid = (long)command.ExecuteScalar();
+            
 
             using (var writeStream = new SqliteBlob(connection, "data", "value", rowid))
             {
@@ -183,16 +280,16 @@ namespace TrevorsRidesServer.Models
 
             using (var writeStream = new SqliteBlob(connection, "RidesInProgress", "RideHistory", rowid))
             {
-                writeStream.WriteAsync(new byte[1024]);
+                writeStream.WriteAsync(new byte[1024], 10, 100);
                 await inputStream.CopyToAsync(writeStream);
             }
             var reader = command.ExecuteReader();
             while (reader.Read())
             {
                 var dataTable = reader.GetSchemaTable();
-                dataTable.
+               
             }
-            reader
+            
         }
     }
 }

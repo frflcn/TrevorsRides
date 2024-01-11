@@ -2,6 +2,7 @@
 using System.Text.Json;
 using System.Text;
 using TrevorsRidesHelpers;
+using TrevorsRidesHelpers.Ride;
 
 using System.Timers;
 

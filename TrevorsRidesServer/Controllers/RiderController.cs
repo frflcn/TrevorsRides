@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text;
 using TrevorsRidesHelpers;
 using TrevorsRidesServer.Models;
+using TrevorsRidesHelpers.Ride;
 
 namespace TrevorsRidesServer.Controllers
 {
@@ -68,10 +69,10 @@ namespace TrevorsRidesServer.Controllers
                 //Validate credentials
                 using (RidesModel context = new RidesModel())
                 {
-                    AccountEntry account;
+                    RiderAccountEntry account;
                     try
                     {
-                        account = context.Accounts.Single(e => e.Id == userId);
+                        account = context.RiderAccounts.Single(e => e.Id == userId);
                     }
                     catch(InvalidOperationException ex)
                     {

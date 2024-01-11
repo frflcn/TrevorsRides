@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TrevorsRidesHelpers
+namespace TrevorsRidesHelpers.Ride
 {
     public class RideCost
     {

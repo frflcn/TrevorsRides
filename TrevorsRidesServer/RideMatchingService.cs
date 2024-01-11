@@ -1,5 +1,7 @@
 ﻿using TrevorsRidesHelpers;
+using TrevorsRidesHelpers.Ride;
 using TrevorsRidesServer.Controllers;
+using TrevorsRidesServer.Models;
 
 namespace TrevorsRidesServer
 {
@@ -60,6 +62,20 @@ namespace TrevorsRidesServer
         public async Task RequestDriver(Driver driver, string rideRequest)
         {
             driver.Send(rideRequest);
+        }
+        public async Task RequestTrevor()
+        {
+
+        }
+        public async Task TripPaid(Guid rideId)
+        {
+            using (RidesModel context = new RidesModel())
+            {
+                RideInProgress ride = context.RidesInProgress.Where(e => e.RiderID == rideId).Single();
+                ride.Status = RideEventType.Paid;
+                await context.SaveChangesAsync();
+                _ = RequestTrevor();
+            }
         }
     }
     public class Rider

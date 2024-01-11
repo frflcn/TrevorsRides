@@ -5,32 +5,34 @@ using TrevorsRidesHelpers.GoogleApiClasses;
 using System.Text.Json;
 using System.Net.Http.Headers;
 using System.Collections;
-using MauiLocation = Microsoft.Maui.Devices.Sensors;
+using Sensors = Microsoft.Maui.Devices.Sensors;
 //using Maui.GoogleMaps;
 using Microsoft.Maui.Controls.Maps;
 using System.Diagnostics;
 using TrevorsRidesHelpers;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Json;
+using TrevorsRidesHelpers.Ride;
 
 namespace TrevorsRidesMaui
 {
     
     public partial class MainPage : ContentPage
     {
-        Place? ToPlace;
-        Place? FromPlace;
+        PlaceCore? Pickup;
+        PlaceCore[] Stops = new PlaceCore[0];
+        PlaceCore? Dropoff;
 
 
         Pin PickUpLocationPin = new Pin()
         {
             Label = "Pick up",
-            Type = Microsoft.Maui.Controls.Maps.PinType.Place
+            Type = PinType.Place
         };
         Pin DropOffLocationPin = new Pin()
         {
             Label = "DropOff up",
-            Type = Microsoft.Maui.Controls.Maps.PinType.Place
+            Type = PinType.Place
         };
 
         ObservableCollection<ListViewEntry> ToAddressSuggestions;
@@ -39,11 +41,11 @@ namespace TrevorsRidesMaui
         string GOOGLE_PLACES_API_KEY = APIKeys.GoogleEverythingKey;
                                        
         HttpClient client;
-        Microsoft.Maui.Devices.Sensors.Location? location = new Microsoft.Maui.Devices.Sensors.Location(40.79442954080881, -77.86165896747);
+        Sensors.Location? location = new Sensors.Location(40.79442954080881, -77.86165896747);
         PlacesSessionToken pst;
 
 
-        [DynamicDependency("OnControlTapped")]
+        //[DynamicDependency("OnControlTapped")]
         public MainPage()
         {
             InitializeComponent();
@@ -58,6 +60,7 @@ namespace TrevorsRidesMaui
                     MainText="Your location" },
                 new ListViewEntry(){
                     MainText="Choose on map" } };
+            Log.Debug("OBSERVABLE COLLECTIONS CREATED");
             this.ToAddress.Suggestions.ItemsSource = ToAddressSuggestions;
             this.FromAddress.Suggestions.ItemsSource = FromAddressSuggestions;
 
@@ -66,8 +69,8 @@ namespace TrevorsRidesMaui
         
         public async void OnControlTapped(object sender, EventArgs e)
         {
-            //this.FromAddress.TextEditor.Unfocus();
-            //this.ToAddress.TextEditor.Unfocus();
+            this.FromAddress.TextEditor.Unfocus();
+            this.ToAddress.TextEditor.Unfocus();
             //Log.Debug("CONTROL: ", "TAPPED");
             
         }
@@ -95,7 +98,7 @@ namespace TrevorsRidesMaui
                     if (location == null || DateTime.UtcNow.Ticks - location.Timestamp.UtcTicks > (10000000L * 60 * 5))
                     {
                         location = await Geolocation.GetLocationAsync();
-                        location = location ?? new Microsoft.Maui.Devices.Sensors.Location(40.79442954080881, -77.86165896747);
+                        location = location ?? new Sensors.Location(40.79442954080881, -77.86165896747);
                     }
                 }
                 if (pst == null || pst.IsDead())
@@ -205,8 +208,8 @@ namespace TrevorsRidesMaui
         private async void ToAddress_OnSuggestionsTapped(object sender, ItemTappedEventArgs e)
         {
             ToAddress.Suggestions.IsVisible = false;
-            ToPlace = await GetPlaceLocationOnSuggestionTapped(e);
-            ToAddress.TextEditor.Text = ToPlace?.name;
+            Pickup = await GetPlaceLocationOnSuggestionTapped(e);
+            ToAddress.TextEditor.Text = Pickup?.Name;
             ToAddress.TextEditor.Unfocus();
             ToAddress.TextEditor.IsEnabled = false;
             ToAddress.TextEditor.IsEnabled = true;
@@ -214,13 +217,13 @@ namespace TrevorsRidesMaui
 
 
            
-            DropOffLocationPin.Location = new MauiLocation.Location(ToPlace.geometry.location.lat, ToPlace.geometry.location.lng);
+            DropOffLocationPin.Location = new Sensors.Location(Pickup.LatLng.lat, Pickup.LatLng.lng);
             if (Map.Pins.Contains(DropOffLocationPin))
             {
                 Map.Pins.Remove(DropOffLocationPin);
             }
             Map.Pins.Add(DropOffLocationPin);
-            if (FromPlace != null && ToPlace != null)
+            if (Dropoff != null && Pickup != null)
             {
                 GetRoute();
             }
@@ -230,26 +233,26 @@ namespace TrevorsRidesMaui
         private async void FromAddress_OnSuggestionsTapped(object sender, ItemTappedEventArgs e)
         {
             FromAddress.Suggestions.IsVisible = false;
-            FromPlace = await GetPlaceLocationOnSuggestionTapped(e);
-            FromAddress.TextEditor.Text = FromPlace?.name;
+            Dropoff = await GetPlaceLocationOnSuggestionTapped(e);
+            FromAddress.TextEditor.Text = Dropoff?.Name;
             FromAddress.TextEditor.Unfocus();
             FromAddress.TextEditor.IsEnabled = false;
             FromAddress.TextEditor.IsEnabled = true;
             
 
 
-            PickUpLocationPin.Location = new MauiLocation.Location(FromPlace.geometry.location.lat, FromPlace.geometry.location.lng);
+            PickUpLocationPin.Location = new Sensors.Location(Dropoff.LatLng.lat, Dropoff.LatLng.lng);
             if (Map.Pins.Contains(PickUpLocationPin))
             {
                 Map.Pins.Remove(PickUpLocationPin);
             }
             Map.Pins.Add(PickUpLocationPin);
-            if (FromPlace != null && ToPlace != null)
+            if (Dropoff != null && Pickup != null)
             {
                 GetRoute();
             }
         }
-        private async Task<Place?> GetPlaceLocationOnSuggestionTapped(ItemTappedEventArgs e)
+        private async Task<PlaceCore?> GetPlaceLocationOnSuggestionTapped(ItemTappedEventArgs e)
         {
             ListViewEntry listViewEntry = e.Item as ListViewEntry;
             if (listViewEntry.MainText == "Choose on map")
@@ -281,7 +284,7 @@ namespace TrevorsRidesMaui
                     response  = JsonSerializer.Deserialize<PlacesDetailsResponse>(json);
                     if (response.status == "OK")
                     {
-                        return response.result;
+                        return new PlaceCore(response.result);
                     }
                     else
                     {
@@ -320,9 +323,9 @@ namespace TrevorsRidesMaui
         } 
         private async void GetRoute()
         {
-            if (FromPlace == null || ToPlace == null)
+            if (Dropoff == null || Pickup == null)
             {
-                throw new NullReferenceException("ToPlace or FromPlace null");
+                throw new NullReferenceException("Pickup or Dropoff null");
             }
             Uri uri = new Uri("https://routes.googleapis.com/directions/v2:computeRoutes");
             RoutesRequest request;
@@ -337,13 +340,13 @@ namespace TrevorsRidesMaui
                 Log.Debug("Trevor Null");
             }
 
-            if (App.TrevorsStatus.isOnline)
+            if (App.TrevorsStatus != null && App.TrevorsStatus.isOnline)
             {
                 request = new RoutesRequest()
                 {
                     origin = App.TrevorsStatus.endPoint!.position.ToWaypoint(),
-                    intermediates = new Waypoint[] { FromPlace.ToWaypoint() },
-                    destination = ToPlace.ToWaypoint(),
+                    intermediates = new Waypoint[] { Dropoff.ToWaypoint() },
+                    destination = Pickup.ToWaypoint(),
                     polylineQuality = PolylineQuality.OVERVIEW
                 };
             }
@@ -351,8 +354,8 @@ namespace TrevorsRidesMaui
             {
                 request = new RoutesRequest()
                 {
-                    origin = FromPlace.ToWaypoint(),
-                    destination = ToPlace.ToWaypoint(),
+                    origin = Dropoff.ToWaypoint(),
+                    destination = Pickup.ToWaypoint(),
                     polylineQuality = PolylineQuality.OVERVIEW
                 };
             }
@@ -373,7 +376,7 @@ namespace TrevorsRidesMaui
 
             Stopwatch stopwatch = Stopwatch.StartNew();
             //List<Maui.GoogleMaps.Position> polyline;
-            List<MauiLocation.Location> polyline;
+            List<Sensors.Location> polyline;
             Viewport viewPort;
             if (request.intermediates == null)
             {
@@ -393,11 +396,11 @@ namespace TrevorsRidesMaui
             foreach (var point in polyline)
             {
                 //RoutePolyline.Positions.Add(point);
-                RoutePolyline.Geopath.Add(new MauiLocation.Location(point.Latitude, point.Longitude));
+                RoutePolyline.Geopath.Add(new Sensors.Location(point.Latitude, point.Longitude));
             }
             Log.Debug("Stopwatch AfterGraph", stopwatch.Elapsed.ToString());
             
-            double radiusLng = (viewPort.high.longitude - viewPort.low.longitude) / 2;
+            double radiusLng = (viewPort!.high.longitude - viewPort.low.longitude) / 2;
             double radiusLat = (viewPort.high.latitude - viewPort.low.latitude) / 2;
             double centerLng = radiusLng + viewPort.low.longitude;
             double centerLat = radiusLat + viewPort.low. latitude;
@@ -411,18 +414,18 @@ namespace TrevorsRidesMaui
             {
                 radius = radiusLat;
             }
-            Map.MoveToRegion(new Microsoft.Maui.Maps.MapSpan(new MauiLocation.Location(centerLat, centerLng), radiusLat * 2.6, radiusLng * 2.6));
+            Map.MoveToRegion(new Microsoft.Maui.Maps.MapSpan(new Sensors.Location(centerLat, centerLng), radiusLat * 2.6, radiusLng * 2.6));
             if (request.intermediates == null)
             {
                 RideDetailsControl.PickupLabel.Text = "Trevor is currently offline";
                 RideDetailsControl.DropOffLabel.Text = $"Ride will take approximately {route.routes[0].duration}";
-                RideDetailsControl.Cost = (decimal.Parse(route.routes[0].duration.Substring(0, route.routes[0].duration.Length - 1))) / 60;
+                RideDetailsControl.Cost = (decimal.Parse(route.routes[0].duration!.Substring(0, route.routes[0].duration!.Length - 1))) / 60;
             }
             else
             {
-                RideDetailsControl.WaitTime = RideDetails.ToTimeSpan(route.routes[0].legs[0].duration);
-                RideDetailsControl.RideDuration = RideDetails.ToTimeSpan(route.routes[0].legs[1].duration);
-                RideDetailsControl.Cost = (decimal.Parse(route.routes[0].legs[1].duration.Substring(0, route.routes[0].legs[1].duration.Length - 1))) / 60;
+                RideDetailsControl.WaitTime = RideDetails.ToTimeSpan(route.routes[0].legs![0].duration);
+                RideDetailsControl.RideDuration = RideDetails.ToTimeSpan(route.routes[0].legs![1].duration);
+                RideDetailsControl.Cost = (decimal.Parse(route.routes[0].legs![1].duration.Substring(0, route.routes[0].legs![1].duration.Length - 1))) / 60;
             }
             
             
@@ -465,9 +468,9 @@ namespace TrevorsRidesMaui
         }
 
         //Probably cuts off the last point in the polyline but also probably isn't noticable with lots of points
-        public static List<MauiLocation.Location> Decode(string encodedPoints)
+        public static List<Sensors.Location> Decode(string encodedPoints)
         {
-            List<MauiLocation.Location> decodedPoints = new List<MauiLocation.Location>();
+            List<Sensors.Location> decodedPoints = new List<Sensors.Location>();
             if (string.IsNullOrEmpty(encodedPoints))
                 throw new ArgumentNullException("encodedPoints");
 
@@ -512,19 +515,19 @@ namespace TrevorsRidesMaui
 
                 currentLng += (sum & 1) == 1 ? ~(sum >> 1) : (sum >> 1);
 
-                decodedPoints.Add(new MauiLocation.Location(Convert.ToDouble(currentLat) / 1E5, Convert.ToDouble(currentLng) / 1E5));
+                decodedPoints.Add(new Sensors.Location(Convert.ToDouble(currentLat) / 1E5, Convert.ToDouble(currentLng) / 1E5));
 
             }
             return decodedPoints;
         }
-        public static List<MauiLocation.Location> DecodeWithZoom(string encodedPoints, Viewport viewport)
+        public static List<Sensors.Location> DecodeWithZoom(string encodedPoints, Viewport viewport)
         {
             double latitudeRange = viewport.high.latitude - viewport.low.latitude;
             double longitudeRange = viewport.high.longitude - viewport.low.longitude;
-            MauiLocation.Location? lastPosition = null;
-            MauiLocation.Location thisPosition;
+            Sensors.Location? lastPosition = null;
+            Sensors.Location thisPosition;
 
-            List<MauiLocation.Location> decodedPoints = new List<MauiLocation.Location>();
+            List<Sensors.Location> decodedPoints = new List<Sensors.Location>();
             if (string.IsNullOrEmpty(encodedPoints))
                 throw new ArgumentNullException("encodedPoints");
 
@@ -569,7 +572,7 @@ namespace TrevorsRidesMaui
                 
                 currentLng += (sum & 1) == 1 ? ~(sum >> 1) : (sum >> 1);
                 
-                thisPosition = new MauiLocation.Location(Convert.ToDouble(currentLat) / 1E5, Convert.ToDouble(currentLng) / 1E5);
+                thisPosition = new Sensors.Location(Convert.ToDouble(currentLat) / 1E5, Convert.ToDouble(currentLng) / 1E5);
                 if (lastPosition == null || Math.Abs(thisPosition.Latitude - lastPosition.Latitude) > latitudeRange / 100 || Math.Abs(thisPosition.Longitude - lastPosition.Longitude) > longitudeRange /100)
                 {
                     decodedPoints.Add(thisPosition);
@@ -580,7 +583,7 @@ namespace TrevorsRidesMaui
             }
             return decodedPoints;
         }
-        public Viewport GetViewPort(List<MauiLocation.Location> polyline)
+        public Viewport GetViewPort(List<Sensors.Location> polyline)
         {
             Viewport viewport = new Viewport()
             {
@@ -619,18 +622,21 @@ namespace TrevorsRidesMaui
 
         private async void RideDetailsControl_BookRidePressed(object sender, EventArgs e)
         {
-            if (FromPlace == null || ToPlace == null)
+            if (Dropoff == null || Pickup == null)
             {
                 return;
             }
+
             RoutesRequest requestedRoute = new RoutesRequest()
             {
-                origin = FromPlace.ToWaypoint(),
-                destination = ToPlace.ToWaypoint()
+                origin = Dropoff.ToWaypoint(),
+                destination = Pickup.ToWaypoint()
             };
             client = App.HttpClient;
-            JsonContent content = JsonContent.Create<RoutesRequest>(requestedRoute);
-            content.Headers.Add("User-ID", App.AccountSession.Account.Id.ToString());
+            //JsonContent content = JsonContent.Create<RoutesRequest>(requestedRoute);
+            TripRequest tripRequest = new TripRequest(Pickup, Dropoff);
+            JsonContent content = JsonContent.Create<TripRequest>(tripRequest);
+            content.Headers.Add("User-ID", App.AccountSession!.Account.Id.ToString());
             content.Headers.Add("Session-Token", App.AccountSession.SessionToken.Token);
             Log.Debug("RoutesRequest", JsonSerializer.Serialize<RoutesRequest>(requestedRoute));
             HttpResponseMessage response = await client.PutAsync($"{Helpers.Domain}/api/CreateCheckoutSession", content);

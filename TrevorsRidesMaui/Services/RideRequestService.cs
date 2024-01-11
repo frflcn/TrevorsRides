@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using TrevorsRidesHelpers;
 using MauiLocation = Microsoft.Maui.Devices.Sensors;
+using TrevorsRidesHelpers.Ride;
 
 namespace TrevorsRidesMaui.BackgroundTasks
 {

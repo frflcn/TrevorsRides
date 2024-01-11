@@ -21,7 +21,7 @@ public partial class EmailVerificationPage : ContentPage
 
     private async void CodeEntry_TextChanged(object sender, TextChangedEventArgs e)
     {
-		Uri uri = new Uri($"{Helpers.Domain}/api/Setup/VerifyEmail");
+		Uri uri = new Uri($"{Helpers.Domain}/api/Rider/Setup/VerifyEmail");
 		if (e.NewTextValue.Length == 6)
 		{
 			int length;
@@ -32,7 +32,7 @@ public partial class EmailVerificationPage : ContentPage
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri);
 			request.Headers.Add("Email", Account.Email);
 			request.Headers.Add("VerificationCode", e.NewTextValue);
-			request.Headers.Add("Identifier", Account.Identifier.ToString());
+			request.Headers.Add("User-ID", Account.Identifier.ToString());
 			HttpResponseMessage response = await _httpClient.SendAsync(request);
 			string body = await response.Content.ReadAsStringAsync();
 			if (body == "Success")

@@ -21,8 +21,8 @@ namespace TrevorsRidesHelpers
                 Converters =
                 {
                     new Json.PhoneNumberJsonConverter()
-                }
-
+                },
+                PropertyNameCaseInsensitive = true,
             };
         }
         public class PhoneNumberJsonConverter : JsonConverter<PhoneNumber>

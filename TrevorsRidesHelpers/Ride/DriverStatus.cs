@@ -1,30 +1,32 @@
 ﻿using System.Text.Json.Serialization;
 using TrevorsRidesHelpers.GoogleApiClasses;
 
-namespace TrevorsRidesHelpers
+
+
+namespace TrevorsRidesHelpers.Ride
 {
     public class DriverStatus
     {
         public bool isOnline { get; set; }
         public bool isDrivingForUber { get; set; }
-        public double? latitude 
+        public double? latitude
         {
             get => lastKnownLocation?.position.lat;
         }
-        public double? longitude 
-        { 
-            get => lastKnownLocation?.position.lng; 
+        public double? longitude
+        {
+            get => lastKnownLocation?.position.lng;
         }
         private SpaceTime? _lastKnownLocation;
-        public SpaceTime? lastKnownLocation 
-        { 
+        public SpaceTime? lastKnownLocation
+        {
             get => _lastKnownLocation;
             set
             {
-                if (this.trips == null)
+                if (trips == null)
                     endPoint = value;
                 _lastKnownLocation = value;
-            } 
+            }
         }
         public SpaceTime? endPoint { get; set; }
         public DriverTrip[]? trips { get; set; }
@@ -32,15 +34,15 @@ namespace TrevorsRidesHelpers
         public DriverStatus(bool isOnline, SpaceTime? lastKnownLocation)
         {
             this.isOnline = isOnline;
-            this.isDrivingForUber = false;
+            isDrivingForUber = false;
             this.lastKnownLocation = lastKnownLocation;
         }
         public DriverStatus()
         {
-            this.isOnline = false;
-            this.isDrivingForUber = false;
+            isOnline = false;
+            isDrivingForUber = false;
         }
-        
+
     }
     public class DriverTrip
     {
@@ -53,8 +55,8 @@ namespace TrevorsRidesHelpers
         public double lng { get; set; }
         public Position(double latitude, double longitude)
         {
-            this.lat = latitude;
-            this.lng = longitude;
+            lat = latitude;
+            lng = longitude;
         }
 
         public Waypoint ToWaypoint()
@@ -63,10 +65,10 @@ namespace TrevorsRidesHelpers
             {
                 location = new GoogleApiClasses.Location()
                 {
-                    latLng = new GoogleApiClasses.LatLng()
+                    latLng = new LatLng()
                     {
-                        latitude = this.lat,
-                        longitude = this.lng
+                        latitude = lat,
+                        longitude = lng
                     }
                 }
             };
@@ -78,17 +80,21 @@ namespace TrevorsRidesHelpers
     public class SpaceTime
     {
         public Position position { get; set; }
-        public DateTime time { get; set; }
-        public SpaceTime(double latitude, double longitude, DateTime time)
+        public DateTimeOffset time { get; set; }
+        public SpaceTime(double latitude, double longitude, DateTimeOffset time)
         {
-            this.position = new Position(latitude, longitude);
+            position = new Position(latitude, longitude);
             this.time = time;
         }
-        [JsonConstructorAttribute]
-        public SpaceTime(Position position, DateTime time)
+        [JsonConstructor]
+        public SpaceTime(Position position, DateTimeOffset time)
         {
             this.position = position;
             this.time = time;
+        }
+        protected SpaceTime()
+        {
+
         }
     }
 }

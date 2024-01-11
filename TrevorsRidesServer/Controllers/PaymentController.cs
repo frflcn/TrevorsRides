@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Org.BouncyCastle.Asn1.Ocsp;
 using Stripe;
 using System.Text.Json;
+using TrevorsRidesHelpers;
 //using Newtonsoft.Json;
 
 namespace TrevorsRidesServer.Controllers
@@ -17,7 +18,7 @@ namespace TrevorsRidesServer.Controllers
             // Alternatively, set up a webhook to listen for the payment_intent.succeeded event
             // and attach the PaymentMethod to a new Customer
             var customers = new CustomerService();
-            StripeConfiguration.ApiKey = "sk_test_51NKhiVCfwCC5JhNxGmKwuih61hzXtSwjH6m2giIiye1tTZaOTvSNa02pSOhpxavtu6B2JqBJ6btwILfztKk3jv2O00jnPoUwm7";
+            StripeConfiguration.ApiKey = APIKeys.StripeSecretAPIKey;
             var customer = customers.Create(new CustomerCreateOptions());
             var paymentIntentService = new PaymentIntentService();
             var paymentIntent = paymentIntentService.Create(new PaymentIntentCreateOptions

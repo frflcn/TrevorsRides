@@ -7,6 +7,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using TrevorsRidesHelpers;
+using TrevorsRidesHelpers.Ride;
 
 namespace TrevorsRidesServer.Controllers
 {
