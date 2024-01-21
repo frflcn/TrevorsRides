@@ -250,9 +250,9 @@ namespace TrevorsRidesServer.Controllers
             }
             else if (OperatingSystem.IsLinux())
             {
-                clientSecretFileLocation = "/var/secrets/trevorsrides/client_secret_trevorsrides_email.json";
-                codeFileLocation = "/var/secrets/trevorsrides/AdminGoogleEmailCode.txt";
-                fileDataStoreLocation = "/var/secrets/trevorsrides/GmailApi";
+                clientSecretFileLocation = $"{Helpers.SecretsFolder}client_secret_trevorsrides_email.json";
+                codeFileLocation = $"{Helpers.SecretsFolder}AdminGoogleEmailCode.txt";
+                fileDataStoreLocation = $"{Helpers.SecretsFolder}GmailApi";
             }
             using (var stream = new FileStream(clientSecretFileLocation, FileMode.Open, FileAccess.Read))
             {

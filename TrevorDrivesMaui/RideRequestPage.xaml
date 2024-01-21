@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TrevorDrivesMaui.RideRequestPage"
+             xmlns:maps="http://schemas.microsoft.com/dotnet/2021/maui/maps"
+             Title="RideRequestPage">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="70"/>
+        </Grid.RowDefinitions>
+        <maps:Map
+            x:Name="Map"
+            VerticalOptions="StartAndExpand"
+            Grid.Row="1"
+            IsZoomEnabled="False"
+            IsShowingUser="True">
+            
+        </maps:Map>
+        <Button 
+            Text="Accept"
+            Clicked="Accept_Clicked"
+            Grid.Row="2">
+            
+        </Button>
+        <Button
+            Text="Decline"
+            Clicked="Decline_Clicked"
+            Grid.Row="0">
+
+        </Button>
+    </Grid>
+</ContentPage>

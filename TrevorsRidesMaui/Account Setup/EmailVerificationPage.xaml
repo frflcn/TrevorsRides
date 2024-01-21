@@ -2,21 +2,28 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TrevorsRidesMaui.Account_Setup.EmailVerificationPage"
-             Title="EmailVerificationPage">
-    <VerticalStackLayout>
+             Title="Verify Email">
+    <FlexLayout
+        Direction="Column"
+        AlignContent="Center"
+        JustifyContent="Center">
         <Label 
             x:Name="CodeLabel"
-            Text="Please enter the verification code"
+            Text="Please enter the verification code received from your email"
+            LineBreakMode="WordWrap"
             VerticalOptions="Center" 
-            HorizontalOptions="Center" />
+            HorizontalOptions="Center"
+            HorizontalTextAlignment="Center"
+            Margin="15,0,15,0"/>
         <Entry
             x:Name="CodeEntry"
             Keyboard="Numeric"
+            HorizontalTextAlignment="Center"
+            Placeholder="Verification Code"
             VerticalOptions="Center"
             HorizontalOptions="Center"
             MinimumWidthRequest="200"
-            TextChanged="CodeEntry_TextChanged"
-            
-            />
-    </VerticalStackLayout>
+            Margin="15,15,15,0"
+            TextChanged="CodeEntry_TextChanged"/>
+    </FlexLayout>
 </ContentPage>

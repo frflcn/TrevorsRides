@@ -10,26 +10,39 @@ namespace TrevorsRidesHelpers
 {
     public class Helpers
     {
-        public static bool IsTest {  get; set; }
+        public const bool IsLive = true;
+        public const bool IsBeta = true;
+
+
+        public static string WebsocketDomain { get; set; }
         public static string Domain { get; set; }
-        public static int Port { get; set; }
-        public static bool IsBeta { get; set; }
+        public static string DataFolder { get; set; }
+        public static string WWWFolder { get; set; }
+        public static string SecretsFolder { get; set; }
         
         static Helpers() 
-        { 
-            IsTest = false;
-            IsBeta = true;
-            Port = 7061;
-            if (IsTest)
+        {
+            SecretsFolder = "/var/secrets/trevorsrides/"; //Same folder for test and live
+            #pragma warning disable CS0162 // Unreachable code detected
+            if (IsLive)
             {
-                Domain = $"http://10.0.2.2:{Port}";
+                Domain = "https://www.trevorsrides.com";
+                WebsocketDomain = "wss://www.trevorsrides.com";
+                DataFolder = "/var/data/trevorsrides/";
+                WWWFolder = "/var/www/trevorsrides/";
             }
             else
             {
-                Domain = "https://www.trevorsrides.com";
-            }
 
+                Domain = $"https://www.test.trevorsrides.com";
+                WebsocketDomain = "wss://www.test.trevorsrides.com";
+                DataFolder = "/var/data/testtrevorsrides/";
+                WWWFolder = "/var/www/testtrevorsrides/";
+            }
+            #pragma warning restore CS0162 // Unreachable code detected
         }
+
+
         /// <summary>
         /// Calculates distance in meters from 2 LatLngLiterals.
         /// </summary>
@@ -53,6 +66,20 @@ namespace TrevorsRidesHelpers
 
             return d;
             
+        }
+        public static double CalculateDistance(LatLngLiteral position1, LatLngLiteral position2)
+        {
+            Position pos1 = new Position(position1.lat, position1.lng);
+            Position pos2 = new Position(position2.lat, position2.lng);
+
+            return CalculateDistance(pos1, pos2);
+        }
+        public static double CalculateDistance(LatLng position1, LatLng position2)
+        {
+            Position pos1 = new Position(position1.latitude, position1.longitude);
+            Position pos2 = new Position(position2.latitude, position2.longitude);
+
+            return CalculateDistance(pos1, pos2);
         }
     }
 }

@@ -64,7 +64,7 @@ namespace TrevorsRidesMaui.BackgroundTasks
             timer.Interval = 1000;
             timer.Elapsed += (s, e) =>
             {
-                Log.Debug("Ride Request Service");
+                //Log.Debug("Ride Request Service");
             };
             timer.Start();
             var notification = new NotificationCompat.Builder(this, "com.trevorsapps.trevorsrides.LocationNotification")

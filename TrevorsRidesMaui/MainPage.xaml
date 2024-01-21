@@ -3,27 +3,27 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:TrevorsRidesMaui.Controls"
              x:Class="TrevorsRidesMaui.MainPage"
+             xmlns:maps="clr-namespace:Maui.GoogleMaps;assembly=Maui.GoogleMaps"
              xmlns:maps2="http://schemas.microsoft.com/dotnet/2021/maui/maps"
              xmlns:sensors="clr-namespace:Microsoft.Maui.Devices.Sensors;assembly=Microsoft.Maui.Essentials"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ignore="http://www.galasoft.ch/ignore"
+             xmlns:local="clr-namespace:TrevorsRidesMaui"
              mc:Ignorable="ignore">
     <!--clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps-->
     <!---->
 
     <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="30" />
-                <RowDefinition Height="30" />
 
-                <RowDefinition Height="*" />
-                <RowDefinition Height="100"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="140"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Rectangle
+            <!--<Rectangle
                 Grid.ColumnSpan="2"
                 Grid.RowSpan="4"
                 ZIndex="-1"
@@ -56,26 +56,25 @@
                     <TapGestureRecognizer 
                         Tapped="OnControlTapped"/>
                 </Label.GestureRecognizers>
-            </Label>
+            </Label>-->
             <controls:ComboBox
-                ignore:ItemsSource="FromAddressSuggestions"
+                Margin="10,5,10,0"
                 Placeholder="Where are you coming from?"
                 ZIndex="2"
                 x:Name="FromAddress"
-                x:FieldModifier="public"
-                Grid.Row="2"
+                Grid.Row="0"
                 Grid.ColumnSpan="2" 
+                
                 OnTextChanged="AddressTextChanged"
                 OnItemTapped="FromAddress_OnSuggestionsTapped"/>
             <controls:ComboBox
-                Margin="0,50,0,0"
-                ignore:ItemsSource="{Binding ListOfEntries}"
+                Margin="10,50,10,0"
                 Placeholder="Where are you headed to?"
                 ZIndex="1"
                 x:Name="ToAddress"
-                x:FieldModifier="public"
-                Grid.Row="2"
+                Grid.Row="0"
                 Grid.ColumnSpan="2" 
+                
                 OnTextChanged="AddressTextChanged"
                 OnItemTapped="ToAddress_OnSuggestionsTapped">
                 
@@ -87,7 +86,7 @@
 
 
 
-            <maps2:Map 
+            <!--<maps2:Map 
                 x:Name="Map" 
                 x:FieldModifier="public"
                 Grid.Row="2"
@@ -106,34 +105,40 @@
                         <x:Arguments>
                             <sensors:Location>
                                 <x:Arguments>
-                                    <x:Double>40.796691</x:Double>
-                                    <x:Double>-77.87240</x:Double>
-                                </x:Arguments>
+                                    <x:Double>40.79808</x:Double>
+                                    <x:Double>-77.85997</x:Double>
+                            </x:Arguments>
                             </sensors:Location>
-                            <x:Double>0.01</x:Double>
-                            <x:Double>0.01</x:Double>
+                            <x:Double>0.02</x:Double>
+                            <x:Double>0.02</x:Double>
                         </x:Arguments>
                     </maps2:MapSpan>
                 </x:Arguments>
                 <maps2:Map.Pins>
 
                 </maps2:Map.Pins>
-                <maps2:Map.MapElements>
-                    
-                        <maps2:Polyline
-                        x:Name="RoutePolyline"
-                        x:FieldModifier="public"
-                        StrokeWidth="5"/>
-                    
-                </maps2:Map.MapElements>
+
                 
                 
 
 
-            </maps2:Map>
+            </maps2:Map>-->
+        <maps:Map
+            Grid.Row="0"
+            Grid.ColumnSpan="2"
+            x:Name="Map"
+            x:FieldModifier="public"
+            InitialCameraUpdate="40.79808, -77.85997, 15"
+            MyLocationEnabled="True"
+            Margin="0,100,0,0"
+            MapClicked="Map_MapClicked">
+
+
+        </maps:Map>
         <controls:RideDetails
+            Margin="10, 0,0,0"
                 x:Name="RideDetailsControl"
-                Grid.Row="3"
+                Grid.Row="1"
                 Grid.ColumnSpan="2"
                 BookRidePressed="RideDetailsControl_BookRidePressed"/>
 

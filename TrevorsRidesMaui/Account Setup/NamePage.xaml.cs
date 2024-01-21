@@ -16,6 +16,11 @@ public partial class CreateAccountPage : ContentPage
 
     private void NextButton_Pressed(object sender, EventArgs e)
     {
+        if (string.IsNullOrEmpty(FirstNameEntry.Text) || string.IsNullOrEmpty(LastNameEntry.Text))
+        {
+            _ = DisplayAlert("", "Please Fill in your Name", "Ok");
+            return;
+        }
 		AccountSetup account = new AccountSetup(
 			FirstNameEntry.Text,
 			LastNameEntry.Text );
@@ -24,14 +29,9 @@ public partial class CreateAccountPage : ContentPage
 
 
 
-    private void WebView_Navigating(object sender, WebNavigatingEventArgs e)
+
+    private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
     {
-        Log.Debug("Webview a");
-        Log.Debug(e.Url);
-        if (e.Url == "https://www.notawebsite.com/")
-        {
-            e.Cancel = true;
-            (Application.Current.MainPage as NavigationPage).PushAsync(new PrivacyPolicy());
-        }
+        (App.Current.MainPage as NavigationPage).PushAsync(new PrivacyPolicy());
     }
 }

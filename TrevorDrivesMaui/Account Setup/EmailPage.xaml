@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TrevorDrivesMaui.Account_Setup.EmailPage"
+             Title="Email">
+    <FlexLayout
+        Direction="Column"
+        JustifyContent="Center"
+        Padding="30,30,30,30">
+
+        <Entry
+            x:Name="EmailEntry"
+            x:FieldModifier="public"
+            Placeholder="Email"
+            VerticalOptions="Center" 
+            HorizontalOptions="Fill"
+            HorizontalTextAlignment="Center"
+            Keyboard="Email"
+            Margin="30,0,30,0"/>
+        <Button
+            Text="Next"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Pressed="NextButton_Pressed" 
+            Margin="0,15,0,0"/>
+    </FlexLayout>
+</ContentPage>

@@ -15,9 +15,9 @@ namespace TrevorsRidesServer.Controllers
         SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
         ILogger<RiderController> _logger;
         static string testPath = "C://Users/tmsta/AppData/TrevorsRides/trevors_status.json";
-        static string trevorStatusFilePath = "/var/data/trevorsrides/trevors_status.json";
-        static string riderStatusFilePath = "/var/data/trevorsrides/riders_status.json";
-        static string trevorsRidesDirectory = "/var/data/trevorsrides/";
+        static string trevorStatusFilePath = $"{Helpers.DataFolder}trevors_status.json";
+        static string riderStatusFilePath = $"{Helpers.DataFolder}riders_status.json";
+        static string trevorsRidesDirectory = $"{Helpers.DataFolder}";
         Random rand = new Random();
         WebSocket? websocket;
         RideMatchingService _rideMatchingService { get; set; }
@@ -95,7 +95,7 @@ namespace TrevorsRidesServer.Controllers
                 //Register Rider if and only if this is the only websocket connection for the rider
                 if (!_rideMatchingService.TryRegisterRider(userId.Value, new Rider(Send)))
                 {
-                    _logger.LogDebug("More than one Websocket Connection");
+                    _logger.LogError("More than one Websocket Connection");
                     HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
                     await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Only one websocket connection per rider is allowed");
                     return;
@@ -105,7 +105,17 @@ namespace TrevorsRidesServer.Controllers
                 //Setup websocket connection
                 _logger.LogDebug("Websocket Connected");
                 websocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-                await Connect();
+                try
+                {
+                    await Connect();
+                }
+                catch (WebSocketException)
+                {
+                    _rideMatchingService.DeRegisterRider(userId!.Value);
+                    websocket.Dispose();
+                    timer.Stop();
+                }
+
                 
             }
             else //Rider did not request a websocket connection
@@ -134,8 +144,10 @@ namespace TrevorsRidesServer.Controllers
 
                 var buffer = new byte[1024 * 4];
 
+
                 receiveResult = await websocket.ReceiveAsync(
-                    new ArraySegment<byte>(buffer), CancellationToken.None);
+                new ArraySegment<byte>(buffer), CancellationToken.None);
+                
 
                 json += Encoding.ASCII.GetString(buffer, 0, receiveResult.Count);
                 try
@@ -179,7 +191,9 @@ namespace TrevorsRidesServer.Controllers
                 try
                 {
                     string trevorStatusString = System.IO.File.ReadAllText(trevorStatusFilePath);
-                    DriverStatus trevorStatus = JsonSerializer.Deserialize<DriverStatus>(trevorStatusString);
+                    //DriverStatus trevorStatus = JsonSerializer.Deserialize<DriverStatus>(trevorStatusString);
+                    DriverStatus trevorStatus = _rideMatchingService.GetTrevorsStatus();
+                    //_logger.LogDebug($"Trevor Status: {trevorStatus}");
                     WebsocketMessage websocketMessage = new WebsocketMessage(MessageType.DriverUpdate, trevorStatus);
                     string jsonMessage = JsonSerializer.Serialize(websocketMessage);
                     byte[] bytesToSend = Encoding.UTF8.GetBytes(jsonMessage);
@@ -188,6 +202,21 @@ namespace TrevorsRidesServer.Controllers
                     try
                     {
                         await websocket.SendAsync(bytesToSend, WebSocketMessageType.Text, true, CancellationToken.None);
+                    }
+                    catch (WebSocketException ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        Console.WriteLine(ex.StackTrace);
+                        try
+                        {
+                            timer.Stop();
+                        }
+                        finally
+                        {
+
+                        }
+                        
+                        _rideMatchingService.DeRegisterRider(userId!.Value);
                     }
                     finally
                     {
@@ -243,6 +272,8 @@ namespace TrevorsRidesServer.Controllers
             {
                 Console.WriteLine(ex.Message);
                 Console.WriteLine(ex.StackTrace);
+                timer.Stop();
+                _rideMatchingService.DeRegisterRider(userId!.Value);
             }
             
         }

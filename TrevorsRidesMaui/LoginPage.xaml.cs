@@ -43,6 +43,7 @@ public partial class LoginPage : ContentPage
 
 	public async void LoginButton_Pressed(object sender, EventArgs e)
     {
+
 		if (!IsSupported)
 		{
 			DisplayAlert("Update App", "This app version is no longer supported. Please update now at https://www.trevorsrides.com/Download", "Ok");
@@ -52,7 +53,7 @@ public partial class LoginPage : ContentPage
 		{
 			DisplayAlert("Please Wait", "Please wait while we attempt to reach the server", "Ok");
 		}
-		HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{Helpers.Domain}/api/Login");
+		HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{Helpers.Domain}/api/Rider/Login");
 		request.Headers.Add("Email", EmailEntry.Text);
 		request.Headers.Add("Password", PasswordEntry.Text);
 		HttpResponseMessage response = await httpClient.SendAsync(request);
@@ -77,14 +78,25 @@ public partial class LoginPage : ContentPage
             }
 
 			App.AccountSession = await response.Content.ReadFromJsonAsync<AccountSession>(jsonOptions);
-			Application.Current.MainPage = new NavigationPage(new MainPage());
+			//Application.Current.MainPage = new NavigationPage(new MainPage());
+			App.Current.MainPage = new MyFlyoutPage();
 			RideRequestService.StartService();
+			App.IsLoggedIn = true;
 			
         }
 		else
 		{
-			IncorrectPasswordLabel.IsVisible = true;
-		}
+            int distance = 10;
+            uint timeInterval = 100;
+            IncorrectPasswordLabel.IsVisible = true;
+            await IncorrectPasswordLabel.TranslateTo(-distance / 2, 0, timeInterval);
+            for (int i = 0; i < 4; i++)
+            {
+                await IncorrectPasswordLabel.TranslateTo(distance, 0, timeInterval);
+                await IncorrectPasswordLabel.TranslateTo(-distance, 0, timeInterval);
+            }
+            await IncorrectPasswordLabel.TranslateTo(0, 0, timeInterval);
+        }
     }
 		
     
@@ -138,7 +150,7 @@ public partial class LoginPage : ContentPage
         }
 
         App.AccountSession = JsonSerializer.Deserialize<AccountSession>(accountSessionJson, Json.Options);
-        Uri uri = new Uri($"{Helpers.Domain}/api/Login");
+        Uri uri = new Uri($"{Helpers.Domain}/api/Rider/Login");
 		HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri);
 		request.Headers.Add("User-ID", App.AccountSession.Account.Id.ToString());
 		request.Headers.Add("SessionToken", App.AccountSession.SessionToken.Token);
@@ -167,12 +179,11 @@ public partial class LoginPage : ContentPage
 			Log.Debug("AUTO LOGIN", $"Json: {accountSessionJson}");
             await SecureStorage.Default.SetAsync("AccountSession", accountSessionJson);
 			App.AccountSession = JsonSerializer.Deserialize<AccountSession>(accountSessionJson, Json.Options);
-
-			App.Current.MainPage = new NavigationPage(new MainPage());
-
+			App.IsLoggedIn = true;
             RideRequestService.StartService();
-
-			return true;
+            //App.Current.MainPage = new NavigationPage(new MainPage());
+            App.Current.MainPage = new MyFlyoutPage();
+            return true;
         }
         Log.Debug("AUTO LOGIN", "Status NOT OK");
         Log.Debug("AUTO LOGIN", await response.Content.ReadAsStringAsync());

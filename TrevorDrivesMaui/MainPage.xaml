@@ -6,69 +6,81 @@
              xmlns:sensors="clr-namespace:Microsoft.Maui.Devices.Sensors;assembly=Microsoft.Maui.Essentials">
    
 
-    <ScrollView>
+
         <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="30" />
-                <RowDefinition Height="30" />
-                <RowDefinition Height="30" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60" />
+                <RowDefinition Height="0" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
+
+        <FlexLayout
+            AlignItems="Center"
+            AlignContent="Center"
+            JustifyContent="Center"
+            Grid.Row="0"
+            Grid.ColumnSpan="2">
             <Label 
-                    Text="Welcome to Trevor Drives!"
-                
-                    HorizontalOptions="CenterAndExpand"
-                    Grid.ColumnSpan="2"/>
+                x:Name="DrivingStatusLabel"
+                FontAttributes="Bold"
+                FontSize="Large"
+                IsVisible="True"
+                Text="You're offline" 
+                VerticalOptions="Center"
+                HorizontalOptions="EndAndExpand"
+                Grid.Row="0"/>
 
-            <Label Text="Am I Driving?" 
-                   
-                       HorizontalOptions="EndAndExpand"
-                       Grid.Row="1"/>
+            <Switch 
+                Scale="2"
+                Margin="25, 0,0,0"
+                x:Name="AmIDrivingSwitch"
+                Toggled="AmIDrivingToggled"
+                IsToggled="False" 
+                VerticalOptions="Center"
+                HorizontalOptions="StartAndExpand"
+                Grid.Row="0"
+                Grid.Column="1"/>
+        </FlexLayout>
+            
 
-            <Switch x:Name="AmIDrivingSwitch"
-                    
-                        Toggled="AmIDrivingToggled"
-                        IsToggled="False" 
-                    
-                        HorizontalOptions="StartAndExpand"
-                        Grid.Row="1"
-                        Grid.Column="1"/>
+            <Label 
+                Text="Am I Driving For Uber?" 
+                IsVisible="False"
+                HorizontalOptions="EndAndExpand"
+                Grid.Row="1"/>
 
-            <Label Text="Am I Driving For Uber?" 
-                   
-                       HorizontalOptions="EndAndExpand"
-                       Grid.Row="2"/>
-
-            <Switch x:Name="AmIDrivingForUberSwitch"
+            <Switch 
+                x:Name="AmIDrivingForUberSwitch"
+                IsVisible="False" 
+                Toggled="AmIDrivingForUberToggled"
+                IsToggled="False" 
                     
-                        Toggled="AmIDrivingForUberToggled"
-                        IsToggled="False" 
-                    
-                        HorizontalOptions="StartAndExpand"
-                        Grid.Row="2"
-                        Grid.Column="1"/>
-            <maps:Map x:Name="Map" 
-                          Grid.Row="3"
-                          Grid.ColumnSpan="2"
-                          HorizontalOptions="Fill"
-                          VerticalOptions="FillAndExpand"
+                HorizontalOptions="StartAndExpand"
+                Grid.Row="1"
+                Grid.Column="1"/>
+            <maps:Map 
+                x:Name="Map" 
+                Grid.Row="2"
+                Grid.ColumnSpan="2"
+                HorizontalOptions="Fill"
+                VerticalOptions="FillAndExpand"
                       
-                          IsShowingUser="False">
+                IsShowingUser="True">
                 <x:Arguments>
                     <maps:MapSpan>
                         <x:Arguments>
                             <sensors:Location>
                                 <x:Arguments>
-                                    <x:Double>40.796691</x:Double>
-                                    <x:Double>-77.87240</x:Double>
+                                    <x:Double>40.79808</x:Double>
+                                    <x:Double>-77.85997</x:Double>
                                 </x:Arguments>
                             </sensors:Location>
-                            <x:Double>0.01</x:Double>
-                            <x:Double>0.01</x:Double>
+                            <x:Double>0.02</x:Double>
+                            <x:Double>0.02</x:Double>
                         </x:Arguments>
                     </maps:MapSpan>
                 </x:Arguments>
@@ -77,6 +89,6 @@
             </maps:Map>
 
         </Grid>
-    </ScrollView>
+    
 
 </ContentPage>

@@ -5,23 +5,32 @@ using TrevorsRidesHelpers;
 using TrevorsRidesHelpers.Ride;
 
 using System.Timers;
+using TrevorDrivesMaui.BackgroundTasks;
 
 namespace TrevorDrivesMaui
 {
     public partial class App : Application
     {
-        public HttpClient HttpClient { get; set; }
+        public static HttpClient HttpClient { get; set; }
+        public static AccountSession? AccountSession { get; set; }
+        public static bool IsLoggedIn { get; set; } = false;
+        
+        
 
-        //public static TrevorStatus trevorStatus = new TrevorStatus(false, 40.7338893615268, -77.8858946396202);
-        public static DriverStatus trevorStatus = new DriverStatus(false, new SpaceTime(40.7338893615268, -77.8858946396202, new DateTime(0)));
-        public static ClientWebSocket client = new ClientWebSocket();
-        public Random rand = new Random();
+        //public static TrevorStatus TrevorStatus = new TrevorStatus(false, 40.7338893615268, -77.8858946396202);
+        public static DriverStatus TrevorStatus = new DriverStatus(false, new SpaceTime(40.7338893615268, -77.8858946396202, new DateTime(0)));
+        public static ClientWebSocket Client = new ClientWebSocket();
+        public Random Rand = new Random();
 
+        static App()
+        {
+            HttpClient = new HttpClient();
+        }
         public App()
         {
             InitializeComponent();
-            HttpClient = new HttpClient();
-            MainPage = new AppShell();
+            
+            MainPage = new NavigationPage(new LoginPage());
 
 
         }
@@ -33,9 +42,45 @@ namespace TrevorDrivesMaui
             window.Created += async (s, e) =>
             {
                 await CheckPermissions();
-                Task connectTask = ConnectWebsocket();
+
+                 
+                //Task connectTask = ConnectWebsocket();
+                if (App.AccountSession != null)
+                {
+                    if (!App.AccountSession.SessionToken.IsExpired)
+                    {
+                        if (!RideRequestService.IsRunning)
+                        {
+                            RideRequestService.StartService();
+                        }
+                    }
+                }
             };
-            Window window1 = new Window(new AppShell());
+            window.Stopped += (s, e) =>
+            {
+                if (!TrevorStatus.isOnline)
+                {
+                    RideRequestService.StopService();
+                }
+            };
+            window.Resumed += (s, e) =>
+            {
+                if (App.AccountSession != null)
+                {
+                    if (!App.AccountSession.SessionToken.IsExpired)
+                    {
+                        if (!RideRequestService.IsRunning)
+                        {
+                            RideRequestService.StartService();
+                        }
+
+                    }
+                }
+            };
+            window.Destroying += (s, e) =>
+            {
+                
+            };
 
             return window;
         }
@@ -44,7 +89,7 @@ namespace TrevorDrivesMaui
             Uri uri = new Uri("wss://www.trevorsrides.com/wss/Driver");
             
             CancellationTokenSource cts = new CancellationTokenSource();
-            await client.ConnectAsync(uri, cts.Token);
+            await Client.ConnectAsync(uri, cts.Token);
 
             //Debug.WriteLine("YAAAAY");
             System.Timers.Timer timer = new ();
@@ -56,7 +101,7 @@ namespace TrevorDrivesMaui
             {
                 byte[] buffer = new byte[1024];
 
-                var responseTask = await client.ReceiveAsync(buffer, cts.Token);
+                var responseTask = await Client.ReceiveAsync(buffer, cts.Token);
 
                 string message = System.Text.Encoding.ASCII.GetString(buffer, 0, responseTask.Count);
                 DriverStatus driverStatus = JsonSerializer.Deserialize<DriverStatus>(message);
@@ -82,15 +127,15 @@ namespace TrevorDrivesMaui
                         GeolocationRequest request = new GeolocationRequest(GeolocationAccuracy.Best);
                         location = await Geolocation.Default.GetLocationAsync(request);
                     }
-                    trevorStatus.lastKnownLocation = new SpaceTime(new Position(location.Latitude, location.Longitude), location.Timestamp.DateTime);
-                    WebsocketMessage websocketMessage = new WebsocketMessage(MessageType.DriverUpdate, trevorStatus);
+                    TrevorStatus.lastKnownLocation = new SpaceTime(new Position(location.Latitude, location.Longitude), location.Timestamp.DateTime);
+                    WebsocketMessage websocketMessage = new WebsocketMessage(MessageType.DriverUpdate, TrevorStatus);
                     string message = JsonSerializer.Serialize(websocketMessage);
                     ArraySegment<byte> buffer = new ArraySegment<byte>(new byte[1024]);
                     buffer = Encoding.ASCII.GetBytes(message);
 
-                    await client.SendAsync(buffer, WebSocketMessageType.Text, true, cts.Token);
+                    await Client.SendAsync(buffer, WebSocketMessageType.Text, true, cts.Token);
                     Log.Debug("Message sent: ", message);
-                    timer.Interval = 1000 + rand.Next(100);
+                    timer.Interval = 1000 + Rand.Next(100);
 
                 }
                 catch (FeatureNotSupportedException fnsEx)

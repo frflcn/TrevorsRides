@@ -8,17 +8,17 @@
     <FlyoutItem Title="MainPage">
         <Tab>
             <ShellContent
-        Title="Welcome To Trevor's Rides"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+                Title="Welcome To Trevor's Rides"
+                ContentTemplate="{DataTemplate local:MainPage}"
+                Route="MainPage" />
         </Tab>
     </FlyoutItem>
     <FlyoutItem Title="MapTest">
         <Tab>
             <ShellContent
-        Title="Welcome To Trevor's Rides"
-        ContentTemplate="{DataTemplate local:MapTestPage}"
-        Route="MapTestPage" />
+                Title="Welcome To Trevor's Rides"
+                ContentTemplate="{DataTemplate local:MapTestPage}"
+                Route="MapTestPage" />
         </Tab>
     </FlyoutItem>
     

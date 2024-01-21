@@ -34,6 +34,10 @@
 	  <RunAOTCompilation>True</RunAOTCompilation>
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android|AnyCPU'">
+	  <AndroidPackageFormat>apk</AndroidPackageFormat>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
@@ -63,6 +67,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Resources\Images\contacts.png" />
+	  <None Remove="Resources\Images\hamburger.png" />
+	  <None Remove="Resources\Images\todo.png" />
 	  <None Remove="Resources\Raw\checkout.js" />
 	  <None Remove="Resources\Raw\Stripe.html" />
 	  <None Remove="Resources\Raw\StripeLarge.js" />
@@ -74,9 +81,13 @@
 		<PackageReference Include="Microsoft.AppCenter.Analytics" Version="5.0.3" />
 		<PackageReference Include="Microsoft.AppCenter.Crashes" Version="5.0.3" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
-		<PackageReference Include="Microsoft.Maui.Controls.Maps" Version="8.0.3" />
-		<PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.3" />
+		<PackageReference Include="Microsoft.Maui.Controls.Maps" Version="8.0.6" />
+		<PackageReference Include="Onion.Maui.GoogleMaps" Version="5.0.2" />
 		<PackageReference Include="Stripe.net" Version="43.0.0" />
+
+		<PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.6" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.6" />
+    <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.6" />
 	</ItemGroup>
 
 
@@ -97,6 +108,9 @@
 	  <Compile Update="Account Setup\NamePage.xaml.cs">
 	    <DependentUpon>NamePage.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="FlyoutMenuPage.xaml.cs">
+	    <DependentUpon>FlyoutMenuPage.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -107,6 +121,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Account Setup\PrivacyPolicy.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="AccountPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="BookRidePage.xaml">
@@ -127,10 +144,19 @@
 	  <MauiXaml Update="Account Setup\PasswordPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="FlyoutMenuPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="LoginPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="MapTestPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="MyFlyoutPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="MyNavigationFlyoutPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="RideInProgressPage.xaml">
@@ -143,11 +169,21 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiAsset Include="Resources\Images\car_med.bmp" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <ProjectReference Include="..\TrevorsRidesHelpers\TrevorsRidesHelpers.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <TransformFile Include="Platforms\Android\Resources\values\colors.xml" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-android'">
+	  <PackageReference Include="Xamarin.AndroidX.Fragment.Ktx">
+	    <Version>1.6.2.1</Version>
+	  </PackageReference>
 	</ItemGroup>
 
 </Project>

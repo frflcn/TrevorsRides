@@ -31,9 +31,9 @@ namespace TrevorsRidesHelpers.Ride
         {
 
         }
-        public RideInProgress(Guid riderID, string checkoutSessionId, PlaceCore pickup, PlaceCore dropoff, PlaceCore[]? stops = null)
+        public RideInProgress(Guid rideId, Guid riderID, string checkoutSessionId, PlaceCore pickup, PlaceCore dropoff, PlaceCore[]? stops = null)
         {
-            RideId = Guid.NewGuid();
+            RideId = rideId;
             RiderID = riderID;
             Pickup = new Pickup(pickup);
             DropOff = new DropOff(dropoff);
@@ -58,5 +58,7 @@ namespace TrevorsRidesHelpers.Ride
             DriversHistory = SpaceTimeUpdateContinuum.FromBlob(new byte[] { 0 });
 
         }
+        public RideInProgress(Guid riderID, string checkoutSessionId, PlaceCore pickup, PlaceCore dropoff, PlaceCore[]? stops = null) : this (Guid.NewGuid(), riderID, checkoutSessionId, pickup, dropoff, stops) { }
+                
     }
 }

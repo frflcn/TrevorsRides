@@ -62,7 +62,7 @@ namespace TrevorsRidesHelpers
             _IsExpired = isExpired;
         }
 
-        public SessionToken(int minutesAlive = 60)
+        public SessionToken(int minutesAlive = 1440)
         {
             Token = "";
             for (int i = 0; i < 32; i++)

@@ -13,30 +13,46 @@ using TrevorsRidesHelpers;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Json;
 using TrevorsRidesHelpers.Ride;
+using Help = TrevorsRidesHelpers;
+using Maps = Microsoft.Maui.Controls.Maps;
+using Onion = Maui.GoogleMaps;
+using Maui.GoogleMaps;
 
 namespace TrevorsRidesMaui
 {
     
+    public class MainPageViewModel
+    {
+        public ObservableCollection<ListViewEntry> ToAddressSuggestions { get; set; }
+        public ObservableCollection<ListViewEntry> FromAddressSuggestions { get; set; }
+    }
     public partial class MainPage : ContentPage
     {
         PlaceCore? Pickup;
         PlaceCore[] Stops = new PlaceCore[0];
         PlaceCore? Dropoff;
 
-
-        Pin PickUpLocationPin = new Pin()
+        public Onion.Pin TrevorPIN = new Onion.Pin()
         {
-            Label = "Pick up",
-            Type = PinType.Place
+            Label = "Trevor",
+            Type = Onion.PinType.Place,
+            Icon = BitmapDescriptorFactory.FromBundle("car_50p")
         };
-        Pin DropOffLocationPin = new Pin()
-        {
-            Label = "DropOff up",
-            Type = PinType.Place
-        };
+        
 
-        ObservableCollection<ListViewEntry> ToAddressSuggestions;
-        ObservableCollection<ListViewEntry> FromAddressSuggestions;
+        Onion.Pin PickUpLocationPin = new Onion.Pin()
+        {
+            Label = "Pick Up",
+            Type = Onion.PinType.Place
+        };
+        Onion.Pin DropOffLocationPin = new Onion.Pin()
+        {
+            Label = "Drop Off",
+            Type = Onion.PinType.Place
+        };
+        MainPageViewModel viewModel = new MainPageViewModel();
+        public ObservableCollection<ListViewEntry> ToAddressSuggestions { get; set; }
+        public ObservableCollection<ListViewEntry> FromAddressSuggestions { get; set; }
        
         string GOOGLE_PLACES_API_KEY = APIKeys.GoogleEverythingKey;
                                        
@@ -60,9 +76,12 @@ namespace TrevorsRidesMaui
                     MainText="Your location" },
                 new ListViewEntry(){
                     MainText="Choose on map" } };
-            Log.Debug("OBSERVABLE COLLECTIONS CREATED");
+
+
             this.ToAddress.Suggestions.ItemsSource = ToAddressSuggestions;
             this.FromAddress.Suggestions.ItemsSource = FromAddressSuggestions;
+
+
 
 
         }
@@ -71,24 +90,29 @@ namespace TrevorsRidesMaui
         {
             this.FromAddress.TextEditor.Unfocus();
             this.ToAddress.TextEditor.Unfocus();
-            //Log.Debug("CONTROL: ", "TAPPED");
+            Log.Debug("CONTROL: ", "TAPPED");
             
         }
 
         
 
-        private void Map_MapClicked(object sender, MapClickedEventArgs e)
+        private void Map_MapClicked(object sender, Onion.MapClickedEventArgs e)
         {
             this.FromAddress.TextEditor.Unfocus();
             this.ToAddress.TextEditor.Unfocus();
-            Log.Debug("Map Tapped", "");
+            Log.Debug("Maps Tapped", "");
             
         }
 
         private async void AddressTextChanged(object sender, TextChangedEventArgs e )
         {
+
             ComboBox comboBox = sender as ComboBox;
+
+            
             ObservableCollection<ListViewEntry> suggestions = comboBox.Suggestions.ItemsSource as ObservableCollection<ListViewEntry>;
+            
+            //ObservableCollection<ListViewEntry> suggestions = viewModel.
             if (e.NewTextValue != "")
             {
                 
@@ -112,16 +136,16 @@ namespace TrevorsRidesMaui
                     $"sessiontoken={pst.GUID}&" +
                     $"key={GOOGLE_PLACES_API_KEY}");
                 HttpResponseMessage message = await client.GetAsync(uri);
-                Log.Debug("REQUEST: ", uri.OriginalString);
-                Log.Debug($"{DateTime.Now}", "New PlacesAutoCompleteRequest");
+
                 
                 var options = new JsonSerializerOptions()
                 {
                     PropertyNameCaseInsensitive = true
                 };
                 string jsonMessage = await message.Content.ReadAsStringAsync();
-                Log.Debug("DA RESPONSE", jsonMessage);
+
                 PlacesAutocompleteResponse response;
+
                 try
                 {
                     response = JsonSerializer.Deserialize<PlacesAutocompleteResponse>(jsonMessage, options);
@@ -208,8 +232,8 @@ namespace TrevorsRidesMaui
         private async void ToAddress_OnSuggestionsTapped(object sender, ItemTappedEventArgs e)
         {
             ToAddress.Suggestions.IsVisible = false;
-            Pickup = await GetPlaceLocationOnSuggestionTapped(e);
-            ToAddress.TextEditor.Text = Pickup?.Name;
+            Dropoff = await GetPlaceLocationOnSuggestionTapped(e);
+            ToAddress.TextEditor.Text = Dropoff?.Name;
             ToAddress.TextEditor.Unfocus();
             ToAddress.TextEditor.IsEnabled = false;
             ToAddress.TextEditor.IsEnabled = true;
@@ -217,40 +241,46 @@ namespace TrevorsRidesMaui
 
 
            
-            DropOffLocationPin.Location = new Sensors.Location(Pickup.LatLng.lat, Pickup.LatLng.lng);
+            
+            
+            if (Dropoff != null && Pickup != null)
+            {
+                await GetRoute();
+            }
+            DropOffLocationPin.Position = new Onion.Position(Dropoff.LatLng.lat, Dropoff.LatLng.lng);
             if (Map.Pins.Contains(DropOffLocationPin))
             {
                 Map.Pins.Remove(DropOffLocationPin);
             }
             Map.Pins.Add(DropOffLocationPin);
-            if (Dropoff != null && Pickup != null)
-            {
-                GetRoute();
-            }
+
 
         }
 
         private async void FromAddress_OnSuggestionsTapped(object sender, ItemTappedEventArgs e)
         {
             FromAddress.Suggestions.IsVisible = false;
-            Dropoff = await GetPlaceLocationOnSuggestionTapped(e);
-            FromAddress.TextEditor.Text = Dropoff?.Name;
+            Pickup = await GetPlaceLocationOnSuggestionTapped(e);
+            FromAddress.TextEditor.Text = Pickup?.Name;
             FromAddress.TextEditor.Unfocus();
             FromAddress.TextEditor.IsEnabled = false;
             FromAddress.TextEditor.IsEnabled = true;
             
 
 
-            PickUpLocationPin.Location = new Sensors.Location(Dropoff.LatLng.lat, Dropoff.LatLng.lng);
-            if (Map.Pins.Contains(PickUpLocationPin))
-            {
-                Map.Pins.Remove(PickUpLocationPin);
-            }
-            Map.Pins.Add(PickUpLocationPin);
+            
+            
             if (Dropoff != null && Pickup != null)
             {
-                GetRoute();
+                await GetRoute();
             }
+            PickUpLocationPin.Position = new Onion.Position(Pickup.LatLng.lat, Pickup.LatLng.lng);
+            if (Map.Pins.Contains(PickUpLocationPin))
+            {
+                Map.Pins.Remove(PickUpLocationPin);  
+            }
+            Map.Pins.Add(PickUpLocationPin);
+
         }
         private async Task<PlaceCore?> GetPlaceLocationOnSuggestionTapped(ItemTappedEventArgs e)
         {
@@ -258,10 +288,12 @@ namespace TrevorsRidesMaui
             if (listViewEntry.MainText == "Choose on map")
             {
                 //Have user choose on map
+                _ = DisplayAlert("Feature Coming soon...", null, "OK");
             }
             else if (listViewEntry.MainText == "Your location")
             {
                 //Select users current location
+                _ = DisplayAlert("Feature Coming soon...", null, "OK");
             }
             else
             {
@@ -321,32 +353,20 @@ namespace TrevorsRidesMaui
             }
             return null;
         } 
-        private async void GetRoute()
+        private async Task GetRoute()
         {
-            if (Dropoff == null || Pickup == null)
-            {
-                throw new NullReferenceException("Pickup or Dropoff null");
-            }
+            Stopwatch stopwatch = Stopwatch.StartNew();
             Uri uri = new Uri("https://routes.googleapis.com/directions/v2:computeRoutes");
             RoutesRequest request;
 
-            if (Application.Current == null)
-            {
-                Log.Debug("Application Null");
-            }
-            
-            if (App.TrevorsStatus == null)
-            {
-                Log.Debug("Trevor Null");
-            }
 
             if (App.TrevorsStatus != null && App.TrevorsStatus.isOnline)
             {
                 request = new RoutesRequest()
                 {
                     origin = App.TrevorsStatus.endPoint!.position.ToWaypoint(),
-                    intermediates = new Waypoint[] { Dropoff.ToWaypoint() },
-                    destination = Pickup.ToWaypoint(),
+                    intermediates = new Waypoint[] { Pickup.ToWaypoint() },
+                    destination = Dropoff.ToWaypoint(),
                     polylineQuality = PolylineQuality.OVERVIEW
                 };
             }
@@ -354,8 +374,8 @@ namespace TrevorsRidesMaui
             {
                 request = new RoutesRequest()
                 {
-                    origin = Dropoff.ToWaypoint(),
-                    destination = Pickup.ToWaypoint(),
+                    origin = Pickup.ToWaypoint(),
+                    destination = Dropoff.ToWaypoint(),
                     polylineQuality = PolylineQuality.OVERVIEW
                 };
             }
@@ -368,37 +388,37 @@ namespace TrevorsRidesMaui
             if (request.intermediates == null)
                 content.Headers.Add("X-Goog-FieldMask", "routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline,routes.viewport");
             else
-                content.Headers.Add("X-Goog-FieldMask", "routes.duration,routes.legs.duration,routes.legs.polyline.encodedPolyline");
+                content.Headers.Add("X-Goog-FieldMask", "routes.duration,routes.legs.duration,routes.legs.distanceMeters,routes.legs.polyline.encodedPolyline");
             HttpResponseMessage response = await client.PostAsync(uri, content);
             string jsonResponse = await response.Content.ReadAsStringAsync();
             Log.Debug("Response", jsonResponse);
             RoutesResponse route = JsonSerializer.Deserialize<RoutesResponse>(jsonResponse);
 
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            //List<Maui.GoogleMaps.Position> polyline;
-            List<Sensors.Location> polyline;
             Viewport viewPort;
+            Onion.Polyline polylineAct;
             if (request.intermediates == null)
             {
                 viewPort = route.routes[0].viewport;
-                polyline = DecodeWithZoom(route.routes[0].polyline.encodedPolyline, route.routes[0].viewport);
+                polylineAct = Help.Map.DecodeReturnOnionPolyline(route.routes[0].polyline.encodedPolyline);
             }
-                
+
             else
             {
-                polyline = Decode(route.routes[0].legs[1].polyline.encodedPolyline);
-                viewPort = GetViewPort(polyline);
-                polyline = DecodeWithZoom(route.routes[0].legs[1].polyline.encodedPolyline, viewPort);
+                polylineAct = Help.Map.DecodeReturnOnionPolyline(route.routes[0].legs[1].polyline.encodedPolyline);
+                viewPort = GetViewPort(polylineAct);
             }
-            Log.Debug("Stopwatch AfterDecode", stopwatch.Elapsed.ToString());
-            RoutePolyline.Geopath.Clear();
-            //RoutePolyline.Positions.Clear();
-            foreach (var point in polyline)
-            {
-                //RoutePolyline.Positions.Add(point);
-                RoutePolyline.Geopath.Add(new Sensors.Location(point.Latitude, point.Longitude));
-            }
-            Log.Debug("Stopwatch AfterGraph", stopwatch.Elapsed.ToString());
+
+           
+
+            Map.Polylines.Clear();
+            
+            
+            Map.Polylines.Add(polylineAct);
+            
+
+
+
+            
             
             double radiusLng = (viewPort!.high.longitude - viewPort.low.longitude) / 2;
             double radiusLat = (viewPort.high.latitude - viewPort.low.latitude) / 2;
@@ -414,191 +434,48 @@ namespace TrevorsRidesMaui
             {
                 radius = radiusLat;
             }
-            Map.MoveToRegion(new Microsoft.Maui.Maps.MapSpan(new Sensors.Location(centerLat, centerLng), radiusLat * 2.6, radiusLng * 2.6));
+            Map.MoveToRegion(new Onion.MapSpan(new Onion.Position(centerLat, centerLng), radiusLat * 2.6, radiusLng * 2.6));
             if (request.intermediates == null)
             {
                 RideDetailsControl.PickupLabel.Text = "Trevor is currently offline";
-                RideDetailsControl.DropOffLabel.Text = $"Ride will take approximately {route.routes[0].duration}";
-                RideDetailsControl.Cost = (decimal.Parse(route.routes[0].duration!.Substring(0, route.routes[0].duration!.Length - 1))) / 60;
+                RideDetailsControl.DropOffLabel.Text = $"{int.Parse(route.routes[0].duration.Substring(0, route!.routes[0].duration!.Length - 1)) / 60} minute ride";
+                decimal rideCost = decimal.Round(((int)(RideCost.CentsPerMinute * double.Parse(route!.routes[0].duration!.Substring(0, route!.routes[0].duration!.Length - 1)) / 60
+                    + RideCost.CentsPerMile * route.routes[0].distanceMeters / 1609)!) / 100.0M, 2);
+                RideDetailsControl.Cost = RideCost.CostInDollars(route.routes[0].distanceMeters!.Value, route.routes[0].duration!);
             }
             else
             {
                 RideDetailsControl.WaitTime = RideDetails.ToTimeSpan(route.routes[0].legs![0].duration);
                 RideDetailsControl.RideDuration = RideDetails.ToTimeSpan(route.routes[0].legs![1].duration);
-                RideDetailsControl.Cost = (decimal.Parse(route.routes[0].legs![1].duration.Substring(0, route.routes[0].legs![1].duration.Length - 1))) / 60;
+
+                
+                decimal rideCost = decimal.Round(((int)(RideCost.CentsPerMinute * double.Parse(route!.routes[0].legs![1].duration!.Substring(0, route!.routes[0].legs![1].duration!.Length - 1)) / 60
+                    + RideCost.CentsPerMile * route.routes[0].legs![1].distanceMeters / 1609)!) / 100.0M, 2);
+                RideDetailsControl.Cost = RideCost.CostInDollars(route.routes[0].legs![1].distanceMeters, route!.routes[0].legs![1].duration);
             }
             
             
 
         }
 
-        //Not currently using
-        private void PolylineDecode(string polyline)
-        {
-            List<short> polylineInt = new List<short>();
-            List<List<byte[]>> polylinePointsBytes = new List<List<byte[]>>();
-            List<byte[]> polylinePointBytesTemp = new List<byte[]>();
-            
-            foreach(char c in polyline)
-            {
-                polylineInt.Add((short)c);
-            }
-            for(int i = 0; i < polylineInt.Count; i++)
-            {
-                
-                polylineInt[i] -= 63;
-             
-                polylinePointBytesTemp.Add(new byte[] { (byte)polylineInt[i] });
-                if ((polylinePointBytesTemp[polylinePointBytesTemp.Count - 1][0] & 0x20) != 0x20)
-                {
-                    polylinePointsBytes.Add(new List<byte[]>());
-                    for (int j = polylinePointBytesTemp.Count - 1; j >= 0; j--)
-                    {
-                        polylinePointsBytes[polylinePointsBytes.Count - 1].Add(polylinePointBytesTemp[j]);
-                    }
-                    
-                    polylinePointBytesTemp.Clear();
-                }
-            }
-            BitArray[] polylinePoints5BitArrays = new BitArray[polylinePointsBytes.Count];
-            for(int i = 0; i < polylinePointsBytes.Count; i++)
-            {
 
-            }
-        }
 
-        //Probably cuts off the last point in the polyline but also probably isn't noticable with lots of points
-        public static List<Sensors.Location> Decode(string encodedPoints)
-        {
-            List<Sensors.Location> decodedPoints = new List<Sensors.Location>();
-            if (string.IsNullOrEmpty(encodedPoints))
-                throw new ArgumentNullException("encodedPoints");
-
-            char[] polylineChars = encodedPoints.ToCharArray();
-            int index = 0;
-
-            int currentLat = 0;
-            int currentLng = 0;
-            int next5bits;
-            int sum;
-            int shifter;
-
-            while (index < polylineChars.Length)
-            {
-                // calculate next latitude
-                sum = 0;
-                shifter = 0;
-                do
-                {
-                    next5bits = (int)polylineChars[index++] - 63;
-                    sum |= (next5bits & 31) << shifter;
-                    shifter += 5;
-                } while (next5bits >= 32 && index < polylineChars.Length);
-
-                if (index >= polylineChars.Length)
-                    return decodedPoints;
-
-                currentLat += (sum & 1) == 1 ? ~(sum >> 1) : (sum >> 1);
-
-                //calculate next longitude
-                sum = 0;
-                shifter = 0;
-                do
-                {
-                    next5bits = (int)polylineChars[index++] - 63;
-                    sum |= (next5bits & 31) << shifter;
-                    shifter += 5;
-                } while (next5bits >= 32 && index < polylineChars.Length);
-
-                if (index >= polylineChars.Length && next5bits >= 32)
-                    return decodedPoints;
-
-                currentLng += (sum & 1) == 1 ? ~(sum >> 1) : (sum >> 1);
-
-                decodedPoints.Add(new Sensors.Location(Convert.ToDouble(currentLat) / 1E5, Convert.ToDouble(currentLng) / 1E5));
-
-            }
-            return decodedPoints;
-        }
-        public static List<Sensors.Location> DecodeWithZoom(string encodedPoints, Viewport viewport)
-        {
-            double latitudeRange = viewport.high.latitude - viewport.low.latitude;
-            double longitudeRange = viewport.high.longitude - viewport.low.longitude;
-            Sensors.Location? lastPosition = null;
-            Sensors.Location thisPosition;
-
-            List<Sensors.Location> decodedPoints = new List<Sensors.Location>();
-            if (string.IsNullOrEmpty(encodedPoints))
-                throw new ArgumentNullException("encodedPoints");
-
-            char[] polylineChars = encodedPoints.ToCharArray();
-            int index = 0;
-
-            int currentLat = 0;
-            int currentLng = 0;
-            int next5bits;
-            int sum;
-            int shifter;
-
-            while (index < polylineChars.Length)
-            {
-                // calculate next latitude
-                sum = 0;
-                shifter = 0;
-                do
-                {
-                    next5bits = (int)polylineChars[index++] - 63;
-                    sum |= (next5bits & 31) << shifter;
-                    shifter += 5;
-                } while (next5bits >= 32 && index < polylineChars.Length);
-
-                if (index >= polylineChars.Length)
-                    return decodedPoints;
-
-                currentLat += (sum & 1) == 1 ? ~(sum >> 1) : (sum >> 1);
-
-                //calculate next longitude
-                sum = 0;
-                shifter = 0;
-                do
-                {
-                    next5bits = (int)polylineChars[index++] - 63;
-                    sum |= (next5bits & 31) << shifter;
-                    shifter += 5;
-                } while (next5bits >= 32 && index < polylineChars.Length);
-
-                if (index >= polylineChars.Length && next5bits >= 32)
-                    return decodedPoints;
-                
-                currentLng += (sum & 1) == 1 ? ~(sum >> 1) : (sum >> 1);
-                
-                thisPosition = new Sensors.Location(Convert.ToDouble(currentLat) / 1E5, Convert.ToDouble(currentLng) / 1E5);
-                if (lastPosition == null || Math.Abs(thisPosition.Latitude - lastPosition.Latitude) > latitudeRange / 100 || Math.Abs(thisPosition.Longitude - lastPosition.Longitude) > longitudeRange /100)
-                {
-                    decodedPoints.Add(thisPosition);
-                    lastPosition = thisPosition;
-                }
-                    
-
-            }
-            return decodedPoints;
-        }
-        public Viewport GetViewPort(List<Sensors.Location> polyline)
+        public Viewport GetViewPort(Onion.Polyline polyline)
         {
             Viewport viewport = new Viewport()
             {
                 low = new LatLng()
                 {
-                    latitude = polyline[0].Latitude,
-                    longitude = polyline[0].Longitude
+                    latitude = polyline.Positions[0].Latitude,
+                    longitude = polyline.Positions[0].Longitude
                 },
                 high = new LatLng()
                 {
-                    latitude = polyline[0].Latitude,
-                    longitude = polyline[0].Longitude
+                    latitude = polyline.Positions[0].Latitude,
+                    longitude = polyline.Positions[0].Longitude
                 }
             };
-            foreach (var position in polyline)
+            foreach (var position in polyline.Positions)
             {
                 if (viewport.low.latitude > position.Latitude)
                 {
@@ -638,11 +515,26 @@ namespace TrevorsRidesMaui
             JsonContent content = JsonContent.Create<TripRequest>(tripRequest);
             content.Headers.Add("User-ID", App.AccountSession!.Account.Id.ToString());
             content.Headers.Add("Session-Token", App.AccountSession.SessionToken.Token);
+            if (App.IsTesting)
+            {
+                content.Headers.Add("EmailOfRequestedDriver", App.AccountSession.Account.Email);
+            }
+            //else
+            //{
+            //    content.Headers.Add("EmailOfRequestedDriver", "");
+            //}
             Log.Debug("RoutesRequest", JsonSerializer.Serialize<RoutesRequest>(requestedRoute));
+            Log.Debug("HEADERS", content.Headers.ToString());
             HttpResponseMessage response = await client.PutAsync($"{Helpers.Domain}/api/CreateCheckoutSession", content);
 
             Log.Debug("CreateCheckoutSessionURL", await response.Content.ReadAsStringAsync());
+
             await Navigation.PushAsync(new BookRidePage(await response.Content.ReadAsStringAsync()));
+  
+            
+
+            
+            Log.Debug("AFTER PUSH ASYNC", "YUPPP");
                 
         }
     }

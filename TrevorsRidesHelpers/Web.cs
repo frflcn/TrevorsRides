@@ -6,9 +6,26 @@ using System.Threading.Tasks;
 
 namespace TrevorsRidesHelpers
 {
-    public class Url
+    public class Web
     {
-        public const string Domain = "https://www.trevorsrides.com/";
+        public static readonly HttpClient HttpClient;
+        public static readonly string Domain;
+        static Web()
+        {
+            HttpClient = new HttpClient();
+#pragma warning disable CS0162 // Unreachable code detected
+            if (Helpers.IsLive)
+            {
+                
+                Domain = "https://www.trevorsrides.com/";
+                
+            }
+            else
+            {
+                Domain = "https://www.test.trevorsrides.com/";
+            }
+#pragma warning restore CS0162 // Unreachable code detected
+        }
         public class Endpoints
         {
 

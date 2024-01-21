@@ -2,65 +2,68 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TrevorsRidesMaui.Account_Setup.CreateAccountPage"
-             Title="CreateAccountPage"
+             Title="Name"
              BindingContext="">
-    <VerticalStackLayout
-        Padding="30,30,30,30">
-        <Label 
-            Text="Create an Account"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
+    <FlexLayout
+        Direction="Column"
+        AlignContent="Center"
+        JustifyContent="Center"
+        Padding="0,0,0,0">
+        
         <Grid
-            Margin="0,30,0,0">
+            Margin="0,0,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-        <Label
-            Text="First Name"
-            VerticalOptions="Center"
-            HorizontalOptions="Start" />
-        <Entry
+
+            <Entry
+                Margin="35,10,10,0"
             x:Name="FirstNameEntry"
             x:FieldModifier="public"
-            Grid.Row="1"/>
-        <Label
-            Text="Last Name"
+            Placeholder="First Name"
             VerticalOptions="Center"
-            HorizontalOptions="Start" 
-            Grid.Column="1"/>
+            Grid.Row="0"/>
+
         <Entry
+            Margin="10,10,35,0"
             x:Name="LastNameEntry"
             x:FieldModifier="=public"
-            Grid.Row="1"
+            Placeholder="Last Name"
+            VerticalOptions="Center"
+            Grid.Row="0"
             Grid.Column="1" />
         </Grid>
         <Button
             Text="Next"
             VerticalOptions="Center"
             HorizontalOptions="Center"
-            Pressed="NextButton_Pressed"/>
-        <WebView Navigating="WebView_Navigating">
-            <WebView.Source>
-                <HtmlWebViewSource>
-                    <HtmlWebViewSource.Html>
-                        <![CDATA[
-                <HTML>
-                <BODY>
-                
-                <P style="font-size:0.92em">By filling out this form you are agreeing to our <a href="https://www.notawebsite.com">privacy policy</a>.</P>
-                </BODY>
-                </HTML>
-                ]]>
-                    </HtmlWebViewSource.Html>
-                </HtmlWebViewSource>
-            </WebView.Source>
+            Pressed="NextButton_Pressed"
+            Margin="0,10,0,0"/>
+        <Label
+            LineBreakMode="WordWrap"
+            Margin="10,20,10,30"
+            HorizontalTextAlignment="Center"
+            MinimumHeightRequest="40">
+            <Label.FormattedText>
+                <FormattedString>
+                    <Span Text="By filling out this form you are agreeing to our ">
 
-        </WebView>
-        
-    </VerticalStackLayout>
+                    </Span>
+                    <Span 
+                        Text="privacy policy."
+                        TextDecorations="Underline"
+                        TextColor="Blue">
+                        <Span.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                        </Span.GestureRecognizers>
+                    </Span>
+                </FormattedString>
+            </Label.FormattedText>
+
+        </Label>
+    </FlexLayout>
 </ContentPage>

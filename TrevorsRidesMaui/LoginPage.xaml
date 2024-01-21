@@ -2,39 +2,33 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TrevorsRidesMaui.LoginPage"
-             Title="LoginPage">
-    <VerticalStackLayout
-        Padding="30,30,30,30">
-        <Label 
-            Text="Login Page"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-        <Label
-            Text="Email"
-            VerticalOptions="Center"
-            HorizontalOptions="Start"
-            Margin="0,100,0,0" />
+             Title="Login">
+    <FlexLayout
+        Direction="Column"
+        AlignContent="Center"
+        JustifyContent="Center">
         <Entry
             x:Name="EmailEntry"
             x:FieldModifier="public"
+            Placeholder="Email"
             VerticalOptions="Center"
             HorizontalOptions="Fill"
+            Margin="20,0,20,0"
             MinimumWidthRequest="200"/>
-        <Label
-            Text="Password"
-            VerticalOptions="Center"
-            HorizontalOptions="Start" />
+
         <Entry
             x:Name="PasswordEntry"
             x:FieldModifier="public"
+            Placeholder="Password"
             VerticalOptions="Center"
             HorizontalOptions="Fill"
             MinimumWidthRequest="200"
+            Margin="20,5,20,0"
             IsPassword="True"/>
         <Label
             x:Name="IncorrectPasswordLabel"
             IsVisible="False"
-            Text="Username or password incorrect"
+            Text="Username or password is incorrect"
             TextColor="Red"
             VerticalOptions="Center"
             HorizontalOptions="Center"/>
@@ -42,17 +36,20 @@
             Text="Login"
             VerticalOptions="Center"
             HorizontalOptions="Center" 
-            Pressed="LoginButton_Pressed"/>
+            Pressed="LoginButton_Pressed"
+            Margin="0,20,0,0"/>
         <Label
             Text="Or"
             VerticalOptions="Center"
-            HorizontalOptions="Center" />
+            HorizontalOptions="Center" 
+            Margin="0,8,0,0"/>
         <Button
             Text="Create Account"
             VerticalOptions="Center"
             HorizontalOptions="Center"
-            Pressed="CreateAccountButton_Pressed"/>
+            Pressed="CreateAccountButton_Pressed"
+            Margin="0,8,0,0"/>
 
 
-    </VerticalStackLayout>
+    </FlexLayout>
 </ContentPage>

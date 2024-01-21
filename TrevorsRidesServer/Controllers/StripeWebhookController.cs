@@ -4,6 +4,8 @@ using Microsoft.Extensions.Primitives;
 using Stripe;
 using Stripe.Checkout;
 using TrevorsRidesHelpers;
+using TrevorsRidesServer.Models;
+using Help = TrevorsRidesHelpers;
 
 namespace TrevorsRidesServer.Controllers
 {
@@ -44,7 +46,7 @@ namespace TrevorsRidesServer.Controllers
                 if (stripeEvent.Type == Events.PaymentIntentSucceeded)
                 {
                     var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
-                    Console.WriteLine("A successful payment for ${0} was made.", Math.Round((double)paymentIntent.Amount / 100, 2));
+                    //Console.WriteLine("A successful payment for ${0} was made.", Math.Round((double)paymentIntent.Amount / 100, 2));
                     // Then define and call a method to handle the successful payment intent.
                     // handlePaymentIntentSucceeded(paymentIntent);
                     //_rideMatchingService(rideId);
@@ -53,7 +55,24 @@ namespace TrevorsRidesServer.Controllers
                 else if (stripeEvent.Type == Events.CheckoutSessionCompleted)
                 {
                     Session session = stripeEvent.Data.Object as Session;
-                    await _rideMatchingService.TripPaid(Guid.Parse(session.Metadata["RiderId"]));
+                    if (session.Metadata[$"{Help.Stripe.IsLiveKey}"] != $"{Helpers.IsLive}")
+                    {
+                        return Ok();
+                    }
+                    Console.WriteLine("A successful payment for ${0} was made.", Math.Round((double)session.AmountTotal / 100, 2));
+                    string idOfRequestedDriver = session.Metadata[Help.Stripe.IdOfRequestedDriverKey];
+                    if (string.IsNullOrEmpty(idOfRequestedDriver))
+                    {
+                        _ = _rideMatchingService.TripPaid(Guid.Parse(session.Metadata[$"{Help.Stripe.TripIdKey}"]));
+                    }
+                    else
+                    {
+                        Guid driverId = Guid.Parse(idOfRequestedDriver);
+                        Guid tripId = Guid.Parse(session.Metadata[$"{Help.Stripe.TripIdKey}"]);
+
+                        _ = _rideMatchingService.TripPaid(tripId, driverId);
+                    }
+                    
                 }
                 else
                 {
@@ -68,6 +87,9 @@ namespace TrevorsRidesServer.Controllers
             }
             catch (Exception e)
             {
+                _logger.LogError(e.Message);
+                _logger.LogError(e.StackTrace);
+                _logger.LogError(e.GetType().ToString());
                 return StatusCode(500);
             }
         }

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TrevorDrivesMaui.LoginPage"
+             Title="Login">
+    <FlexLayout
+    Direction="Column"
+    AlignContent="Center"
+    JustifyContent="Center">
+        <Entry
+        x:Name="EmailEntry"
+        x:FieldModifier="public"
+        Placeholder="Email"
+        VerticalOptions="Center"
+        HorizontalOptions="Fill"
+        Margin="20,0,20,0"
+        MinimumWidthRequest="200"/>
+
+        <Entry
+        x:Name="PasswordEntry"
+        x:FieldModifier="public"
+        Placeholder="Password"
+        VerticalOptions="Center"
+        HorizontalOptions="Fill"
+        MinimumWidthRequest="200"
+        Margin="20,5,20,0"
+        IsPassword="True"/>
+        <Label
+        x:Name="IncorrectPasswordLabel"
+        IsVisible="False"
+        Text="Username or password is incorrect"
+        TextColor="Red"
+        VerticalOptions="Center"
+        HorizontalOptions="Center"/>
+        <Button
+        Text="Login"
+        VerticalOptions="Center"
+        HorizontalOptions="Center" 
+        Pressed="LoginButton_Pressed"
+        Margin="0,20,0,0"/>
+        <Label
+        Text="Or"
+        VerticalOptions="Center"
+        HorizontalOptions="Center" 
+        Margin="0,8,0,0"/>
+        <Button
+        Text="Create Account"
+        VerticalOptions="Center"
+        HorizontalOptions="Center"
+        Pressed="CreateAccountButton_Pressed"
+        Margin="0,8,0,0"/>
+
+
+    </FlexLayout>
+</ContentPage>

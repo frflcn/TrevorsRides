@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using TrevorsRidesHelpers;
 using MauiLocation = Microsoft.Maui.Devices.Sensors;
+using Onion = Maui.GoogleMaps;
 using TrevorsRidesHelpers.Ride;
 
 namespace TrevorsRidesMaui.BackgroundTasks
@@ -70,7 +71,7 @@ namespace TrevorsRidesMaui.BackgroundTasks
             Client.Options.SetRequestHeader("User-ID", App.AccountSession.Account.Id.ToString());
             Client.Options.SetRequestHeader("SessionToken", App.AccountSession.SessionToken.Token);
             Log.Debug("Connecting Websockets");
-            Uri uri = new Uri("wss://www.trevorsrides.com/wss/Rider");
+            Uri uri = new Uri($"{Helpers.WebsocketDomain}/wss/Rider");
             
             CancellationTokenSource cts = new CancellationTokenSource();
 
@@ -105,58 +106,57 @@ namespace TrevorsRidesMaui.BackgroundTasks
             while (!cts.IsCancellationRequested)
             {
                 byte[] buffer = new byte[1024];
-                Log.Debug("Waiting");
+                //Log.Debug("Waiting");
                 var response = await Client.ReceiveAsync(buffer, cts.Token);
-
+                
                 string message = System.Text.Encoding.ASCII.GetString(buffer, 0, response.Count);
-                Log.Debug("RECEIVED", message);
+                //Log.Debug("RECEIVED", message);
+
+                WebsocketMessage websocketMessage = JsonSerializer.Deserialize<WebsocketMessage>(message);
+                if (websocketMessage.MessageType == MessageType.DriverUpdate)
+                {
+                    DriverStatus driverStatus = JsonSerializer.Deserialize<DriverStatus>((JsonElement)websocketMessage.Message);
+                    App.TrevorsStatus = driverStatus;
+                }
+                
+                
 
 
-                App.TrevorsStatus = JsonSerializer.Deserialize<DriverStatus>(message);
 
 
-
-
-
-                if ((App.Current.MainPage as NavigationPage)?.CurrentPage is MainPage)
+                if (((App.Current.MainPage as MyFlyoutPage)?.Detail as NavigationPage)?.CurrentPage is MainPage)
                 {
 
                     MainThread.BeginInvokeOnMainThread(() =>
                     {
-                        MainPage page = (App.Current.MainPage as NavigationPage)?.CurrentPage as MainPage;
+                        MainPage page = ((App.Current.MainPage as MyFlyoutPage)?.Detail as NavigationPage).CurrentPage as MainPage;
                         //MainPage page = AppShell.Current.CurrentPage as MainPage;
                         if (App.TrevorsStatus.isOnline)
                         {
-                            page.trevorsStatus.Text = "Trevor is Online!";
+                            //page.trevorsStatus.Text = "Trevor is Online!";
+                            page.Title = "Trevor is Online!";
 
-
-                            App.TrevorsLocation.Location = new Location(App.TrevorsStatus.latitude!.Value, App.TrevorsStatus.longitude!.Value);
-
-
-
-                            if (!page.Map.Pins.Contains(App.TrevorsLocation))
+                            
+                            page.TrevorPIN.Position = new Onion.Position(App.TrevorsStatus.latitude!.Value, App.TrevorsStatus.longitude!.Value);
+                            if (page.Map.Pins.Contains(page.TrevorPIN))
                             {
-                                
- 
-                                page.Map.Pins.Add(App.TrevorsLocation);
- 
-
-
-                                App.TrevorsLocation.Location = new Location(App.TrevorsStatus.latitude!.Value, App.TrevorsStatus.longitude!.Value);
-
+                                page.Map.Pins.Remove(page.TrevorPIN);
                             }
+                            page.Map.Pins.Add(page.TrevorPIN);
+                            //page.Map.Pins[0].
+
                         }
                         else
                         {
-                            page.trevorsStatus.Text = "Trevor is offline :(";
+                            //page.trevorsStatus.Text = "Trevor is offline :(";
+                            page.Title = "Trevor is offline :(";
 
-                            if (page.Map.Pins.Contains(App.TrevorsLocation))
+                            if (page.Map.Pins.Contains(page.TrevorPIN))
                             {
-                                page.Map.Pins.Remove(App.TrevorsLocation);
+                                page.Map.Pins.Remove(page.TrevorPIN);
 
                             }
                         }
-
                     });
 
                 }

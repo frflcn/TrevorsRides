@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using TrevorsRidesHelpers.GoogleApiClasses;
 
 
@@ -42,6 +43,10 @@ namespace TrevorsRidesHelpers.Ride
             isOnline = false;
             isDrivingForUber = false;
         }
+        public override string ToString()
+        {
+            return JsonSerializer.Serialize(this);
+        }
 
     }
     public class DriverTrip
@@ -53,10 +58,10 @@ namespace TrevorsRidesHelpers.Ride
     {
         public double lat { get; set; }
         public double lng { get; set; }
-        public Position(double latitude, double longitude)
+        public Position(double lat, double lng)
         {
-            lat = latitude;
-            lng = longitude;
+            this.lat = lat;
+            this.lng = lng;
         }
 
         public Waypoint ToWaypoint()
@@ -71,6 +76,22 @@ namespace TrevorsRidesHelpers.Ride
                         longitude = lng
                     }
                 }
+            };
+        }
+        public LatLng ToLatLng()
+        {
+            return new LatLng()
+            {
+                latitude = lat,
+                longitude = lng
+            };
+        }
+        public LatLngLiteral ToLatLngLiteral()
+        {
+            return new LatLngLiteral()
+            {
+                lat = lat,
+                lng = lng
             };
         }
 

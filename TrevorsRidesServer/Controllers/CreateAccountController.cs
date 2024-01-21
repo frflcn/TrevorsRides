@@ -21,8 +21,45 @@ namespace TrevorsRidesServer.Controllers
         }
         [Route("api/Rider/[controller]")]
         [HttpPost]
-        public async void OnPost([FromHeader(Name="User-ID")] Guid identifier, [FromHeader(Name="NationalPhoneNumber")] ulong nationalPhoneNumber, [FromHeader(Name="CountryCode")] int countryCode, [FromHeader(Name="Password")] string password)
+        public async void OnPost([FromHeader(Name="User-ID")] Guid identifier, [FromHeader(Name="NationalPhoneNumber")] ulong nationalPhoneNumber, [FromHeader(Name="CountryCode")] int countryCode, [FromHeader(Name="Password")] string password, [FromHeader(Name="ConfirmPassword")] string? confirmPassword)
         {
+            if (confirmPassword != null && confirmPassword != password)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Passwords dont match");
+                return;
+            }
+            if (!password.Any(e => char.IsDigit(e)))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Password must have atleast one digit");
+                return;
+            }
+            if (!password.Any(e => char.IsLower(e)))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Password must have atleast one lower case letter");
+                return;
+            }
+            if (!password.Any(e => char.IsUpper(e)))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Password must have atleast one upper case letter");
+                return;
+            }
+            if (!password.Any(e => char.IsSymbol(e) || char.IsPunctuation(e)))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Password must have atleast one special letter");
+                return;
+            }
+            if (password.Length < 8)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Password must have atleast eight characters");
+                return;
+            }
+
             PhoneNumber number = phoneNumberUtil.Parse(nationalPhoneNumber.ToString(), phoneNumberUtil.GetRegionCodeForCountryCode(countryCode));
 
             string hashedPassword = BC.EnhancedHashPassword(password + APIKeys.ServerPepper, 11);
@@ -33,14 +70,14 @@ namespace TrevorsRidesServer.Controllers
                 RiderAccountEntry accountEntry;
                 if (accountSetup.FirstName == null || accountSetup.LastName == null || accountSetup.Email == null || accountSetup.EmailVerificationCode == null || !accountSetup.EmailVerificationCode.IsVerified)
                 {
-                    await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "The account is not fully formed");
                     Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "The account is not fully formed");
                     return;
                 }
                 if (context.RiderAccounts.ToList().Any(e => e.Id == accountSetup.Id || e.Email == accountSetup.Email || e.PhoneNumber == accountSetup.Phone))
                 {
-                    await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "An account with this Id, Email or Phone Number already exists");
                     Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "An account with this Id, Email or Phone Number already exists");
                     return;
                 }
 
@@ -78,8 +115,45 @@ namespace TrevorsRidesServer.Controllers
         }
         [Route("api/Driver/[controller]")]
         [HttpPost]
-        public async void OnDriverPost([FromHeader(Name = "User-ID")] Guid identifier, [FromHeader(Name = "NationalPhoneNumber")] ulong nationalPhoneNumber, [FromHeader(Name = "CountryCode")] int countryCode, [FromHeader(Name = "Password")] string password)
+        public async void OnDriverPost([FromHeader(Name = "User-ID")] Guid identifier, [FromHeader(Name = "NationalPhoneNumber")] ulong nationalPhoneNumber, [FromHeader(Name = "CountryCode")] int countryCode, [FromHeader(Name = "Password")] string password, [FromHeader(Name = "ConfirmPassword")] string? confirmPassword)
         {
+            if (confirmPassword != null && confirmPassword != password)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Passwords dont match");
+                return;
+            }
+            if (!password.Any(e => char.IsDigit(e)))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Password must have atleast one digit");
+                return;
+            }
+            if (!password.Any(e => char.IsLower(e)))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Password must have atleast one lower case letter");
+                return;
+            }
+            if (!password.Any(e => char.IsUpper(e)))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Password must have atleast one upper case letter");
+                return;
+            }
+            if (!password.Any(e => char.IsSymbol(e) || char.IsPunctuation(e)))
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Password must have atleast one special letter");
+                return;
+            }
+            if (password.Length < 8)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "Password must have atleast eight characters");
+                return;
+            }
+
             PhoneNumber number = phoneNumberUtil.Parse(nationalPhoneNumber.ToString(), phoneNumberUtil.GetRegionCodeForCountryCode(countryCode));
 
             string hashedPassword = BC.EnhancedHashPassword(password + APIKeys.ServerPepper, 11);
@@ -90,14 +164,14 @@ namespace TrevorsRidesServer.Controllers
                 DriverAccountEntry accountEntry;
                 if (accountSetup.FirstName == null || accountSetup.LastName == null || accountSetup.Email == null || accountSetup.EmailVerificationCode == null || !accountSetup.EmailVerificationCode.IsVerified)
                 {
-                    await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "The account is not fully formed");
                     Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "The account is not fully formed");
                     return;
                 }
                 if (context.DriverAccounts.ToList().Any(e => e.Id == accountSetup.Id || e.Email == accountSetup.Email || e.PhoneNumber == accountSetup.Phone))
                 {
-                    await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "An account with this Id, Email or Phone Number already exists");
                     Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    await HttpResponseWritingExtensions.WriteAsync(HttpContext.Response, "An account with this Id, Email or Phone Number already exists");
                     return;
                 }
 

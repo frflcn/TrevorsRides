@@ -1,4 +1,5 @@
-﻿using Microsoft.AppCenter;
+﻿using Maui.GoogleMaps.Hosting;
+using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
 using Microsoft.Extensions.Logging;
@@ -29,7 +30,12 @@ namespace TrevorsRidesMaui
 
             #if DEBUG
                 builder.Logging.AddDebug();
-            #endif
+#endif
+#if ANDROID
+            builder.UseGoogleMaps();
+#elif IOS
+            builder.UseGoogleMaps(APIKeys.GoogleMapsAPIKey);
+#endif
 
             return builder.Build();
         }

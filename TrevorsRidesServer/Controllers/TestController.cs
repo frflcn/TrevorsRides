@@ -13,14 +13,23 @@ namespace TrevorsRidesServer.Controllers
     public class TestController : ControllerBase
     {
         [HttpGet]
-        public async Task OnGet()
+        public async Task<IActionResult> OnGet()
         {
+            if (Helpers.IsLive)
+            {
+                return NotFound();
+            }
+
+
             using(RidesModel context = new RidesModel())
             {
-                RideInProgress[] rides = context.RidesInProgress.ToArray();
-                context.RidesInProgress.RemoveRange(rides);
+                DriverAccountEntry driver = context.DriverAccounts.Single(e => e.Email == "tmstauff@aol.com");
+                RiderAccountEntry rider = context.RiderAccounts.Single(e => e.Email == "tmstauff@aol.com");
+                context.DriverAccounts.Remove(driver);
+                context.Remove(rider);
                 await context.SaveChangesAsync();
             }
+            return Ok();
 
 
         }

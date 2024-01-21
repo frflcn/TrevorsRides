@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TrevorsRidesMaui.AccountPage"
+             Title="AccountPage">
+    <Grid>
+        <HorizontalStackLayout
+            x:Name="TestingLayout"
+            IsVisible="False"
+            Margin="0,100,0,100"
+            VerticalOptions="End"
+            HorizontalOptions="Center">
+            <Label
+                Text="Testing"
+                VerticalOptions="Center"
+                FontSize="Medium"/>
+            <Switch
+                x:Name="TestingSwitch"
+                VerticalOptions="Center"
+                Toggled="TestingSwitch_Toggled"/>
+        </HorizontalStackLayout>
+        
+        <FlexLayout
+            FlowDirection="LeftToRight"
+            Direction="Column"
+            AlignContent="Center"
+            JustifyContent="Center"
+            AlignItems="Center">
+            <Grid
+                Margin="0,0,0,40">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="90"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Label 
+                        Margin="20,10,0,0"
+                        Text="Name:"
+                        FontSize="Medium"
+                        FontAttributes="Bold"
+                        VerticalOptions="Center" 
+                        HorizontalOptions="End" >
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Tapped="LabelName_Tapped"/>
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label
+                        x:Name="Name"
+                        Grid.Column="1"
+                        Margin="20,10,0,0"
+                        FontSize="Medium"
+                        FontAttributes="Bold"
+                        Text="Trevor Stauffer"
+                        VerticalOptions="Center"
+                        HorizontalOptions="Start">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Tapped="LabelName_Tapped"/>
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label 
+                        Grid.Row="1"
+                        Margin="20,10,0,0"
+                        FontSize="Medium"
+                        FontAttributes="Bold"
+                        Text="Email:"
+                        VerticalOptions="Center" 
+                        HorizontalOptions="End">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Tapped="LabelEmail_Tapped"/>
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label 
+                        x:Name="Email"
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Margin="20,10,0,0"
+                        FontSize="Medium"
+                        FontAttributes="Bold"
+                        Text="tmstauff@gmail.com"
+                        VerticalOptions="Center" 
+                        HorizontalOptions="Start">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Tapped="LabelEmail_Tapped"/>
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label 
+                        Grid.Row="2"
+                        Margin="20,10,0,0"
+                        FontSize="Medium"
+                        FontAttributes="Bold"
+                        Text="Phone:"
+                        VerticalOptions="Center" 
+                        HorizontalOptions="End">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Tapped="LabelPhone_Tapped"/>
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label 
+                        x:Name="PhoneNumber"
+                        Grid.Row="2"
+                        Grid.Column="1"
+                        Margin="20,10,0,0"
+                        FontSize="Medium"
+                        FontAttributes="Bold"
+                        Text="(610) 413-6280"
+                        VerticalOptions="Center" 
+                        HorizontalOptions="Start">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer
+                            Tapped="LabelPhone_Tapped"/>
+                    </Label.GestureRecognizers>
+                </Label>
+                <Button
+                        FontAttributes="Bold"
+                        Margin="0,20,0,0"
+                        Grid.Row="3"
+                        Grid.ColumnSpan="2"
+                        Text="Logout" 
+                        HorizontalOptions="Center"
+                        VerticalOptions="End"
+                        Clicked="Logout_Clicked"/>
+            </Grid>
+        </FlexLayout>
+    </Grid>
+    <!--<VerticalStackLayout>
+        <FlexLayout>
+            <Label 
+                Margin="20,10,0,0"
+                Text="Name:"
+                FontSize="Medium"
+                VerticalOptions="Center" 
+                HorizontalOptions="Center" />
+            <Label
+                Margin="10,10,0,0"
+                FontSize="Medium"
+                Text="Trevor Stauffer" />
+        </FlexLayout>
+        <FlexLayout>
+            <Label 
+                Margin="20,10,0,0"
+                FontSize="Medium"
+                Text="Email:"
+                VerticalOptions="Center" 
+                HorizontalOptions="Center" />
+            <Label 
+                Margin="10,10,0,0"
+                FontSize="Medium"
+                Text="tmstauff@gmail.com"
+                VerticalOptions="Center" 
+                HorizontalOptions="Center" />
+        </FlexLayout>
+        
+    </VerticalStackLayout>-->
+</ContentPage>

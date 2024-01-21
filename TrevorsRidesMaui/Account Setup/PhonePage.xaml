@@ -2,8 +2,10 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TrevorsRidesMaui.Account_Setup.PhonePage"
-             Title="PhonePage">
-    <VerticalStackLayout>
+             Title="Phone Number">
+    <FlexLayout
+        Direction="Column"
+        JustifyContent="Center">
         <Label 
             Text="Please Enter Your Phone Number"
             VerticalOptions="Center" 
@@ -11,13 +13,18 @@
         <Entry
             x:Name="PhoneEntry"
             VerticalOptions="Center"
-            HorizontalOptions="Center"
+            HorizontalOptions="CenterAndExpand"
+            MinimumWidthRequest="200"
+            Placeholder="Phone Number"
+            HorizontalTextAlignment="Center"
             Keyboard="Telephone"
-            TextChanged="PhoneEntry_TextChanged" />
+            TextChanged="PhoneEntry_TextChanged"
+            Margin="15,15,15,0"/>
         <Button
             Text="Next"
             VerticalOptions="Center"
             HorizontalOptions="Center"
-            Clicked="Button_Clicked" />
-    </VerticalStackLayout>
+            Clicked="Button_Clicked" 
+            Margin="15,15,15,0"/>
+    </FlexLayout>
 </ContentPage>

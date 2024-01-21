@@ -9,7 +9,7 @@ public partial class RideDetails : ContentView
         set
         {
             _rideAmount = Math.Round(value.Value, 2);
-            this.CostLabel.Text = $"Approx Ride Cost: ${_rideAmount.Value}";
+            this.CostLabel.Text = $"${_rideAmount.Value}";
         }
     }
     TimeSpan? _waitTime;
@@ -19,9 +19,9 @@ public partial class RideDetails : ContentView
         set
         {
             _waitTime = value.Value;
-            this.PickupLabel.Text = $"Approx Pickup Time: {(DateTime.Now + _waitTime.Value).ToShortTimeString()} ({Math.Round(_waitTime.Value.TotalMinutes)} minutes from now)";
+            this.PickupLabel.Text = $"{(DateTime.Now + _waitTime.Value).ToShortTimeString()} ({Math.Round(_waitTime.Value.TotalMinutes)} minutes from now)";
             if (_rideDuration != null)
-                this.DropOffLabel.Text = $"Approx DropOff Time: {(DateTime.Now + _waitTime.Value + _rideDuration.Value).ToShortTimeString()} ({Math.Round(_waitTime.Value.TotalMinutes + _rideDuration.Value.TotalMinutes)} minutes from now)";
+                this.DropOffLabel.Text = $"{(DateTime.Now + _waitTime.Value + _rideDuration.Value).ToShortTimeString()} ({Math.Round(_waitTime.Value.TotalMinutes + _rideDuration.Value.TotalMinutes)} minutes from now)";
         }
     }
     TimeSpan? _rideDuration;
@@ -31,7 +31,7 @@ public partial class RideDetails : ContentView
         set
         {
             _rideDuration = value.Value;
-            this.DropOffLabel.Text = $"Approx DropOff Time: {(DateTime.Now + _waitTime.Value + _rideDuration.Value).ToShortTimeString()} ({Math.Round(_waitTime.Value.TotalMinutes + _rideDuration.Value.TotalMinutes)} minutes from now)";
+            this.DropOffLabel.Text = $"{(DateTime.Now + _waitTime.Value + _rideDuration.Value).ToShortTimeString()} ({Math.Round(_waitTime.Value.TotalMinutes + _rideDuration.Value.TotalMinutes)} minutes from now)";
         }
     }
     decimal? _cost;
@@ -40,11 +40,12 @@ public partial class RideDetails : ContentView
         set
         {
             _cost = value.Value;
-            this.CostLabel.Text = $"Approx Ride Cost: ${Math.Round(_cost.Value)}";
+            this.CostLabel.Text = $"${decimal.Round(_cost.Value, 2)}";
         }
     }
 
     public event EventHandler<EventArgs> BookRidePressed;
+
     public RideDetails()
 	{
 		InitializeComponent();

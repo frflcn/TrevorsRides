@@ -43,7 +43,7 @@ namespace TrevorsRidesServer.Models
             }
             else if (OperatingSystem.IsLinux())
             {
-                DbPath = "/var/data/trevorsrides/RidesModel.db";
+                DbPath = $"{Helpers.DataFolder}RidesModel.db";
             }
             else
             {

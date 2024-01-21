@@ -818,10 +818,22 @@ After:
 
     public class TripRequest
     {
+        public Guid? TripId { get; set; }
+        public Guid? DriverId { get; set; }
+        public Guid RiderId { get; set; }
         public PlaceCore Pickup { get; set; }
         public PlaceCore[] Stops { get; set; }
         public PlaceCore Dropoff { get; set; }
         [JsonConstructor]
+        public TripRequest(Guid riderId, PlaceCore pickup, PlaceCore dropoff, PlaceCore[] stops, Guid? driverId = null, Guid? tripId = null) 
+        {
+            TripId = tripId; 
+            DriverId = driverId; 
+            RiderId = riderId; 
+            Pickup = pickup; 
+            Stops = stops;
+            Dropoff = dropoff;
+        }
         public TripRequest(PlaceCore pickup, PlaceCore dropoff, PlaceCore[] stops)
         {
             Stops = stops;
@@ -1002,6 +1014,10 @@ After:
             ArrivalTime = arrivalTime;
             DepartureTime = departureTime;
         }
+        public PlaceCore ToPlaceCore()
+        {
+            return Location;
+        }
     }
 
 
@@ -1031,6 +1047,10 @@ After:
         {
             Location = location;
             DropOffTime = dropOffTime;
+        }
+        public PlaceCore ToPlaceCore()
+        {
+            return Location;
         }
     }
 }

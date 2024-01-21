@@ -6,6 +6,16 @@
 
 <div class="text-center">
     <h1>Trevor's Rides</h1>
-    <p>Coming Soon...</p>
+    <p>@{
+
+            if (Helpers.IsLive)
+            {
+                Html.Raw($"This is live");
+            }
+            else
+            {
+                Html.Raw($"This is staging");
+            }
+        }Coming Soon...</p>
 </div>
   

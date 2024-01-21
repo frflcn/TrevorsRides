@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
-             
+             xmlns:maps2="clr-namespace:Maui.GoogleMaps;assembly=Maui.GoogleMaps"
              x:Class="TrevorsRidesMaui.MapTestPage"
              Title="MapTestPage">
     <!--http://schemas.microsoft.com/dotnet/2021/maui/maps-->
@@ -17,11 +17,19 @@
             Text="Welcome to .NET MAUI!"
             VerticalOptions="Center" 
             HorizontalOptions="Center" />
-        <maps:Map
+        <!--<maps:Map
             VerticalOptions="FillAndExpand"
             MinimumHeightRequest="1000"
             Grid.Row="1">
 
-        </maps:Map>
+        </maps:Map>-->
+        <maps2:Map
+            x:Name="Map"
+            InitialCameraUpdate="40.79808, -77.85997, 15"
+            Grid.Row="1">
+            
+
+        </maps2:Map>
+        
     </Grid>
 </ContentPage>

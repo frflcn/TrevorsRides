@@ -3,10 +3,36 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TrevorsRidesMaui.RideInProgressPage"
              Title="RideInProgressPage">
-    <VerticalStackLayout>
+    <FlexLayout
+        Direction="Column"
+        JustifyContent="Center">
         <Label 
-            Text="Welcome to Ride In Progress Page"
+            FontSize="Medium"
+            Margin="40,0,40,20"
+            Text="Congratulations you made a ride request"
+            HorizontalTextAlignment="Center"
             VerticalOptions="Center" 
             HorizontalOptions="Center" />
-    </VerticalStackLayout>
+        <Label 
+            FontSize="Medium"
+            Margin="40,20,40,20"
+            Text="Accept or Decline the request in the drivers app"
+            HorizontalTextAlignment="Center"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center" />
+        <Label 
+            FontSize="Medium"
+            Margin="40,20,40,20"
+            HorizontalTextAlignment="Center"
+            Text="Then you will be able to make another request"
+            VerticalOptions="Center" 
+            HorizontalOptions="Center" />
+
+        <Button
+            FontSize="Medium"
+            Margin="0,20,0,20"
+            Text="Make Another Request"
+            Clicked="Button_Clicked" 
+            HorizontalOptions="Center"/>
+    </FlexLayout>
 </ContentPage>
