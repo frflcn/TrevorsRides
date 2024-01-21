@@ -412,8 +412,11 @@ namespace TrevorsRidesMaui
 
             Map.Polylines.Clear();
             
+            if (polylineAct.Positions.Count > 1)
+            {
+                Map.Polylines.Add(polylineAct);
+            }
             
-            Map.Polylines.Add(polylineAct);
             
 
 
